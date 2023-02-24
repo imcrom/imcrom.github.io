@@ -1,6 +1,6 @@
 {
-  "short_name": "AIGoneWild",
-  "name": "AI Gone Wild",
+  "short_name": "React App",
+  "name": "Create React App Sample",
   "icons": [
     {
       "src": "favicon.ico",
