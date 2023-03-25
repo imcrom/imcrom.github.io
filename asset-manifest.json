@@ -1,8 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.52ce4071.css",
-    "main.js": "/static/js/main.a585271a.js",
-    "static/media/itemslider.png": "/static/media/itemslider.8f6d76f1841757420f8f.png",
+    "main.js": "/static/js/main.bc8a50ee.js",
     "static/media/bg-roadmap.png": "/static/media/bg-roadmap.3b102034e972661f7adc.png",
     "static/media/fa-duotone-900.svg": "/static/media/fa-duotone-900.bac7a949fdfa983ff8a5.svg",
     "static/media/fa-light-300.svg": "/static/media/fa-light-300.676ceddb711397cb345f.svg",
@@ -10,6 +9,7 @@
     "static/media/fa-solid-900.svg": "/static/media/fa-solid-900.c4054b9e4c6b8fad2407.svg",
     "static/media/bg-3.png": "/static/media/bg-3.c42afd81303a32eee76e.png",
     "static/media/fa-brands-400.svg": "/static/media/fa-brands-400.4de3f482611be3bc9b93.svg",
+    "static/media/itemslider.png": "/static/media/itemslider.928243b473e8347b84fb.png",
     "static/media/fa-duotone-900.eot": "/static/media/fa-duotone-900.44bbc17621739acf4fb1.eot",
     "static/media/fa-duotone-900.ttf": "/static/media/fa-duotone-900.1bdc95a1f9dc66afe5a9.ttf",
     "static/media/fa-light-300.eot": "/static/media/fa-light-300.3880c3bfdb83c71aac0f.eot",
@@ -50,10 +50,10 @@
     "static/media/imgfaq.jpg": "/static/media/imgfaq.6a8cbdbe404880434250.jpg",
     "index.html": "/index.html",
     "main.52ce4071.css.map": "/static/css/main.52ce4071.css.map",
-    "main.a585271a.js.map": "/static/js/main.a585271a.js.map"
+    "main.bc8a50ee.js.map": "/static/js/main.bc8a50ee.js.map"
   },
   "entrypoints": [
     "static/css/main.52ce4071.css",
-    "static/js/main.a585271a.js"
+    "static/js/main.bc8a50ee.js"
   ]
 }
