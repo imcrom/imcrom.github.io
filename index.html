@@ -43,7 +43,7 @@
     </div>
     <div class="stats">
       <span>writeups: <b id="stat-count">0</b></span>
-      <span>platforms: <b>HTB / THM</b></span>
+      <span>platforms: <b>HTB / THM / PICOCTF</b></span>
       <span>status: <b>online</b></span>
     </div>
   </header>
@@ -56,6 +56,7 @@
     <button class="active" data-filter="all">ALL</button>
     <button data-filter="htb">HTB</button>
     <button data-filter="thm">THM</button>
+    <button data-filter="picoctf">PICOCTF</button>
   </div>
 
   <div id="results"></div>
@@ -76,6 +77,15 @@
   // href should point to a writeup page inside the /writeups folder
   const DATA = [
     {
+      title: "Absolute Nano",
+      platform: "picoctf",
+      diff: "med",
+      date: "2026-07-14",
+      desc: "A Linux privilege-escalation challenge where passwordless sudo access to nano on /etc/sudoers lets you grant the user unrestricted root commands.",
+      tags: ["linux","privilege-escalation","sudo","nano"],
+      href: "writeups/pico-absolute-nano.html"
+    },
+    {
       title: "Fool's Mate",
       platform: "thm",
       diff: "easy",
@@ -91,7 +101,7 @@
   const searchInput = document.getElementById('searchInput');
   let activeFilter = 'all';
 
-  const platformLabel = { htb: 'HTB', thm: 'THM' };
+  const platformLabel = { htb: 'HTB', thm: 'THM', picoctf: 'PICOCTF' };
 
   function render(){
     const q = searchInput.value.trim().toLowerCase();

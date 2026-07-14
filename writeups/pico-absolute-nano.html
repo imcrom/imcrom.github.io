@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absolute Nano :: imcrom writeups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back-link pixel" href="../index.html" style="font-size:13px;">&lt;- ./writeups</a>
+
+  <article>
+    <div class="article-head">
+      <h1>Absolute Nano</h1>
+      <h3>picoCTF 2026</h3>
+      <div class="article-meta">
+        <span class="platform picoctf">PICOCTF</span>
+        <span class="diff med">MEDIUM</span>
+        <span class="tag">#linux</span>
+        <span class="tag">#privilege-escalation</span>
+        <span class="tag">#sudo</span>
+        <span class="tag">#nano</span>
+        <span class="card-meta" style="margin-left:6px;">2026-07-14</span>
+      </div>
+    </div>
+
+    <div class="article-body">
+
+      <p>This is a writeup for <strong>Absolute Nano</strong> from picoCTF.
+      The challenge gives us SSH access to a Linux instance and asks us to get
+      the flag by abusing a very generous <span class="inline-code">sudo</span>
+      rule for <span class="inline-code">nano</span>.</p>
+
+      <figure>
+        <img src="img/pico-absolute-nano/01-title.png" alt="Absolute Nano challenge page on picoCTF">
+      </figure>
+
+      <h2>./01 Checking Sudo Permissions</h2>
+      <p>After launching the instance and connecting over SSH, the first thing
+      I checked was which commands the current user could run as root:</p>
+
+      <pre><code>sudo -l</code></pre>
+
+      <figure>
+        <img src="img/pico-absolute-nano/02-sudo-l.png" alt="sudo -l output showing nano can edit /etc/sudoers as root">
+        <figcaption>The user can run <span class="inline-code">/bin/nano /etc/sudoers</span> as root without a password.</figcaption>
+      </figure>
+
+      <p>The output shows that <span class="inline-code">ctf-player</span> can
+      run <span class="inline-code">/bin/nano /etc/sudoers</span> with
+      <span class="inline-code">sudo</span>, and no password is required. Since
+      <span class="inline-code">/etc/sudoers</span> controls sudo privileges,
+      this is enough to give the user broader root access.</p>
+
+      <h2>./02 Editing Sudoers</h2>
+      <p>I opened the sudoers file with the allowed command:</p>
+
+      <pre><code>sudo /bin/nano /etc/sudoers</code></pre>
+
+      <figure>
+        <img src="img/pico-absolute-nano/03-nano-sudoers.png" alt="nano editing the sudoers file">
+        <figcaption>Nano opens the sudoers file as root, so the allowed command can be expanded.</figcaption>
+      </figure>
+
+      <p>The original rule only allowed one specific command:</p>
+
+      <pre><code>ctf-player ALL=(ALL) NOPASSWD: /bin/nano /etc/sudoers</code></pre>
+
+      <p>I changed it to allow all commands:</p>
+
+      <pre><code>ctf-player ALL=(ALL) NOPASSWD: ALL</code></pre>
+
+      <p>With that change saved, the current user can now run any command as
+      root without entering a password.</p>
+
+      <h2>./03 Flag</h2>
+      <p>After updating the sudoers rule, reading the flag as root is
+      straightforward.</p>
+
+      <figure>
+        <img src="img/pico-absolute-nano/04-flag.png" alt="Terminal output showing the Absolute Nano flag">
+        <figcaption>The updated sudoers rule gives full passwordless root access.</figcaption>
+      </figure>
+
+      <div class="flag-box">
+        <span class="flag-label">FLAG</span>
+        picoCTF{n4n0_411_7h3_w4y_7a258d4b}
+      </div>
+
+      <p>The key issue is that the challenge grants root access to an editor
+      that can modify the sudoers file itself. Once that rule is editable, the
+      restriction can be replaced with unrestricted passwordless sudo access.</p>
+
+    </div>
+  </article>
+
+  <footer>
+    <div>
+      <a href="https://github.com/imcrom" target="_blank" rel="noopener">github.com/imcrom</a>
+    </div>
+    <div>// picoCTF :: Absolute Nano</div>
+  </footer>
+
+</div>
+</body>
+</html>
