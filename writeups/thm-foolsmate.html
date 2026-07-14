@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fool's Mate :: imcrom writeups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back-link pixel" href="../index.html" style="font-size:13px;">&lt;- ./writeups</a>
+
+  <article>
+    <div class="article-head">
+      <h1>Fool's Mate</h1>
+      <div class="article-meta">
+        <span class="platform thm">THM</span>
+        <span class="diff easy">EASY</span>
+        <span class="tag">#web</span>
+        <span class="tag">#client-side-check</span>
+        <span class="tag">#burp-suite</span>
+        <span class="card-meta" style="margin-left:6px;">2026-07-14</span>
+      </div>
+    </div>
+
+    <div class="article-body">
+
+      <p>This is a writeup for <strong>Fool's Mate</strong> on TryHackMe. The
+      box presents a web-based chess game and hides the flag behind a checkmate
+      that the client refuses to let you deliver honestly.</p>
+
+      <figure>
+        <img src="img/01-title.png" alt="Fool's Mate TryHackMe room title screen">
+      </figure>
+
+      <h2>./01 First Look</h2>
+      <p>Right after booting the machine we're faced with a chess game already
+      set up for a one-move checkmate for white.</p>
+
+      <figure>
+        <img src="img/02-chessboard.png" alt="Chess board showing a one move checkmate for white">
+        <figcaption>The board on load — a textbook one-move mate is sitting right there.</figcaption>
+      </figure>
+
+      <p>Moving the rook to deliver the mate looks like the obvious play, but
+      it throws an error. Moving other, non-mating pieces works fine — it's
+      specifically the checkmate that the app doesn't like.</p>
+
+      <figure>
+        <img src="img/03-rook-error.png" alt="Error shown after moving the rook to deliver checkmate">
+        <figcaption>Mating with the rook throws an error instead of ending the game.</figcaption>
+      </figure>
+
+      <p>To rule out a rook-specific bug, I tried a different mate entirely —
+      promoting the pawn to a queen. That also delivers checkmate, and it also
+      throws the same error.</p>
+
+      <figure>
+        <img src="img/04-queen-error.png" alt="Promoting a pawn to a queen also triggers the same checkmate error">
+        <figcaption>Promotion mate hits the exact same wall — so it isn't about the piece.</figcaption>
+      </figure>
+
+      <p>That confirms it: <em>every</em> checkmate throws this error, no
+      matter which piece delivers it. Time to stop guessing from the UI and
+      go read the source.</p>
+
+      <h2>./02 Reading the Source</h2>
+      <p>Digging through <span class="inline-code">app.js</span> turns up the
+      culprit almost immediately.</p>
+
+      <figure>
+        <img src="img/05-appjs-source.png" alt="app.js source showing an if statement that blocks checkmate client side">
+        <figcaption>An <span class="inline-code">if</span> check in app.js unconditionally blocks checkmate — purely client side.</figcaption>
+      </figure>
+
+      <p>There's an <span class="inline-code">if</span> statement that always
+      raises the error the moment a checkmate is detected. Since this logic
+      only exists in the browser, the fix is simple in theory: stop trusting
+      the client and tamper with the request sent to the server instead. Burp
+      Suite is the tool for that.</p>
+
+      <h2>./03 Confirming It's Client-Side</h2>
+      <p>With the proxy running, attempting the checkmate move again shows
+      exactly what we'd expect — nothing. No request ever leaves the browser
+      when a mate is attempted, which confirms the block never touches the
+      server at all.</p>
+
+      <figure>
+        <img src="img/06-no-requests.png" alt="Burp Suite showing no requests were sent to the server on a checkmate attempt">
+        <figcaption>Burp's history stays empty on a checkmate attempt — the request is never sent.</figcaption>
+      </figure>
+
+      <h2>./04 Forging the Winning Move</h2>
+      <p>Next step: intercept a <em>legal, non-mating</em> move first, so we
+      have a real request to work with, then tamper it into the mating move.</p>
+
+      <figure>
+        <img src="img/07-move-request-a.png" alt="Intercepted request calling the /api/move endpoint">
+        <figcaption>A normal move calls <span class="inline-code">/api/move</span> — this is the request we tamper with.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/08-move-request-b.png" alt="Intercepted request body showing the move parameters to edit">
+        <figcaption>Editing the destination square from <span class="inline-code">to:a7</span> to <span class="inline-code">to:a8</span> turns this into the checkmate move.</figcaption>
+      </figure>
+
+      <p>Changing <span class="inline-code">"to:a7"</span> to
+      <span class="inline-code">"to:a8"</span> turns this into the exact move
+      that delivers checkmate for white — and this time it's the server, not
+      the browser, deciding what happens.</p>
+
+      <h2>./05 Flag</h2>
+      <p>Forwarding the tampered request gets the job done. The client-side
+      guard never gets a say, the server accepts the mate, and the flag
+      appears.</p>
+
+      <figure>
+        <img src="img/09-flag.png" alt="Flag appearing after forwarding the tampered checkmate request">
+        <figcaption>Server-side validation approves the mate — flag's up.</figcaption>
+      </figure>
+
+      <div class="flag-box">
+        <span class="flag-label">FLAG</span>
+        THM{cl13nt_s1d3_ch3ckm4t3}
+      </div>
+
+      <p>Thanks for reading — the whole box is a solid reminder that any
+      validation living only in <span class="inline-code">app.js</span> is a
+      suggestion, not a rule. If the server doesn't check it too, it isn't
+      actually enforced.</p>
+
+    </div>
+  </article>
+
+  <footer>
+    <div>
+      <a href="https://github.com/imcrom" target="_blank" rel="noopener">github.com/imcrom</a>
+    </div>
+    <div>// TryHackMe :: Fool's Mate</div>
+  </footer>
+
+</div>
+</body>
+</html>

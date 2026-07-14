@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>imcrom :: ctf writeups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="term-bar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="term-title">imcrom@ctf: ~/writeups</span>
+    </div>
+    <p class="logo pixel">imcrom<span>_</span></p>
+    <div class="prompt-line">
+      <span class="who">imcrom@ctf</span>:<span class="path">~$</span>
+      <span id="typed"></span><span class="cursor"></span>
+    </div>
+    <div class="stats">
+      <span>writeups: <b id="stat-count">0</b></span>
+      <span>platforms: <b>HTB / THM</b></span>
+      <span>status: <b>online</b></span>
+    </div>
+  </header>
+
+  <div class="search">
+    <input id="searchInput" type="text" placeholder="grep -i 'search writeups...'" autocomplete="off">
+  </div>
+
+  <div class="filterbar" id="filterbar">
+    <button class="active" data-filter="all">ALL</button>
+    <button data-filter="htb">HTB</button>
+    <button data-filter="thm">THM</button>
+  </div>
+
+  <div id="results"></div>
+
+  <footer>
+    <div>
+      <a href="https://github.com/imcrom" target="_blank" rel="noopener">github.com/imcrom</a>
+      <a href="#" target="_blank" rel="noopener">twitter</a>
+      <a href="#" target="_blank" rel="noopener">discord</a>
+    </div>
+    <div>// last sync: edit the DATA array to add writeups</div>
+  </footer>
+
+</div>
+
+<script>
+  // ---- EDIT THIS ARRAY TO ADD / UPDATE WRITEUPS ----
+  // href should point to a writeup page inside the /writeups folder
+  const DATA = [
+    {
+      title: "Fool's Mate",
+      platform: "thm",
+      diff: "easy",
+      date: "2026-07-14",
+      desc: "A chess-themed web challenge: the checkmate check runs client-side, so tampering the /api/move request in Burp lets you force a checkmate and pop the flag.",
+      tags: ["web","client-side-check","burp-suite"],
+      href: "writeups/thm-foolsmate.html"
+    }
+  ];
+
+  const results = document.getElementById('results');
+  const filterbar = document.getElementById('filterbar');
+  const searchInput = document.getElementById('searchInput');
+  let activeFilter = 'all';
+
+  const platformLabel = { htb: 'HTB', thm: 'THM' };
+
+  function render(){
+    const q = searchInput.value.trim().toLowerCase();
+    const list = DATA.filter(item => {
+      if(activeFilter !== 'all' && item.platform !== activeFilter) return false;
+      const hay = (item.title + ' ' + item.desc + ' ' + item.tags.join(' ')).toLowerCase();
+      if(q && !hay.includes(q)) return false;
+      return true;
+    }).sort((a,b) => b.date.localeCompare(a.date));
+
+    results.innerHTML = '';
+
+    list.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-top">
+          <a class="card-title" href="${item.href}">${item.title}</a>
+          <span class="card-meta">${item.date}</span>
+        </div>
+        <div class="card-desc">${item.desc}</div>
+        <div class="tags">
+          <span class="platform ${item.platform}">${platformLabel[item.platform]}</span>
+          <span class="diff ${item.diff}">${item.diff.toUpperCase()}</span>
+          ${item.tags.map(t => `<span class="tag">#${t}</span>`).join('')}
+        </div>
+      `;
+      results.appendChild(card);
+    });
+
+    if(list.length === 0){
+      results.innerHTML = '<div class="card"><div class="card-desc">no writeups yet // check back soon</div></div>';
+    }
+
+    document.getElementById('stat-count').textContent = DATA.length;
+  }
+
+  filterbar.addEventListener('click', e => {
+    if(e.target.tagName !== 'BUTTON') return;
+    filterbar.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    activeFilter = e.target.dataset.filter;
+    render();
+  });
+
+  searchInput.addEventListener('input', render);
+
+  render();
+
+  // typed intro line
+  const typedEl = document.getElementById('typed');
+  const fullText = "cat writeups.log";
+  let i = 0;
+  function typeStep(){
+    if(i <= fullText.length){
+      typedEl.textContent = fullText.slice(0, i);
+      i++;
+      setTimeout(typeStep, 55);
+    }
+  }
+  typeStep();
+</script>
+</body>
+</html>
