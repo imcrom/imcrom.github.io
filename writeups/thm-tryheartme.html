@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TryHeartMe :: imcrom writeups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back-link pixel" href="../index.html" style="font-size:13px;">&lt;- ./writeups</a>
+
+  <article>
+    <div class="article-head">
+      <h1>TryHeartMe</h1>
+      <h3>TryHackMe</h3>
+      <div class="article-meta">
+        <span class="platform thm">THM</span>
+        <span class="diff easy">EASY</span>
+        <span class="tag">#web</span>
+        <span class="tag">#jwt</span>
+        <span class="tag">#cookie-tampering</span>
+        <span class="tag">#burp-suite</span>
+        <span class="card-meta" style="margin-left:6px;">2026-07-15</span>
+      </div>
+    </div>
+
+    <div class="article-body">
+
+      <p>This is a writeup for <strong>TryHeartMe</strong> on TryHackMe. The
+      room gives us a small shop application and asks us to purchase the hidden
+      product named <span class="inline-code">Valenflag</span>.</p>
+
+      <figure>
+        <img src="img/thm-tryheartme/01-room.png" alt="TryHeartMe room page showing the hidden Valenflag objective">
+      </figure>
+
+      <h2>./01 First Look</h2>
+      <p>After launching the instance, the web app opens to a Valentine's
+      themed shop. The obvious first idea is to buy a visible product and
+      tamper with the request so that the product name becomes
+      <span class="inline-code">Valenflag</span>.</p>
+
+      <figure>
+        <img src="img/thm-tryheartme/02-shop.png" alt="TryHeartMe shop page with purchasable products">
+        <figcaption>The shop contains normal products, but the target item is hidden.</figcaption>
+      </figure>
+
+      <p>Trying to buy an item immediately shows that only logged-in users can
+      purchase products, so the next step is to register an account and log in.</p>
+
+      <figure>
+        <img src="img/thm-tryheartme/03-login-required.png" alt="Shop response saying only logged-in users can buy products">
+        <figcaption>The purchase route requires an authenticated session.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/thm-tryheartme/04-register-login.png" alt="TryHeartMe login and registration page">
+        <figcaption>After creating an account, the app gives us a normal user session.</figcaption>
+      </figure>
+
+      <h2>./02 Request Tampering</h2>
+      <p>Once logged in, the session cookie stands out because it is a JWT.
+      Before attacking the token, I first tried changing the purchase endpoint
+      directly from a visible product to the hidden one:</p>
+
+      <pre><code>POST /buy/heart-choco
+POST /buy/Valenflag</code></pre>
+
+      <figure>
+        <img src="img/thm-tryheartme/05-buy-valenflag-404.png" alt="Burp Suite showing a tampered buy request returning 404 Not Found">
+        <figcaption>Changing the product name directly returns <span class="inline-code">404 Not Found</span>.</figcaption>
+      </figure>
+
+      <p>After testing several request parameter changes without success, I
+      shifted focus to the JWT session token.</p>
+
+      <h2>./03 Finding Admin Access</h2>
+      <p>Since the app uses a role-bearing JWT, I checked for an admin area.
+      The admin page exists, but the normal user session cannot access it.</p>
+
+      <figure>
+        <img src="img/thm-tryheartme/06-admin-page-found.png" alt="Browser showing the discovered admin page">
+        <figcaption>The admin page is present.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/thm-tryheartme/07-admin-403.png" alt="Admin page returning a 403 Forbidden error">
+        <figcaption>The normal user token receives a <span class="inline-code">403</span> response.</figcaption>
+      </figure>
+
+      <h2>./04 Forging the JWT</h2>
+      <p>The JWT payload includes a role claim. I changed the role from
+      <span class="inline-code">user</span> to <span class="inline-code">admin</span>,
+      encoded the token again, and sent the admin page request with the forged
+      cookie.</p>
+
+      <figure>
+        <img src="img/thm-tryheartme/08-jwt-role-admin.png" alt="JWT payload edited from user role to admin role">
+        <figcaption>The important change is <span class="inline-code">"role": "admin"</span>.</figcaption>
+      </figure>
+
+      <p>The forged token works, and the admin-only shop view becomes
+      accessible.</p>
+
+      <figure>
+        <img src="img/thm-tryheartme/09-admin-shop.png" alt="Admin shop page accessible after JWT role tampering">
+        <figcaption>The admin role reveals the privileged shop view.</figcaption>
+      </figure>
+
+      <h2>./05 Flag</h2>
+      <p>With the forged admin JWT in place, buying the hidden item returns the
+      flag.</p>
+
+      <figure>
+        <img src="img/thm-tryheartme/10-buy-with-admin-jwt.png" alt="Buying Valenflag with the forged admin JWT">
+        <figcaption>The purchase succeeds once the request uses the admin JWT.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/thm-tryheartme/11-flag.png" alt="TryHeartMe flag shown after buying Valenflag">
+        <figcaption>The hidden product purchase returns the flag.</figcaption>
+      </figure>
+
+      <div class="flag-box">
+        <span class="flag-label">FLAG</span>
+        THM{v4l3nt1n3_jwt_c00k13_t4mp3r_4dm1n_sh0p}
+      </div>
+
+      <p>The issue is that the application trusts the role stored in the
+      client-side JWT. Once the token is modified to claim admin access, the
+      hidden product becomes purchasable.</p>
+
+    </div>
+  </article>
+
+  <footer>
+    <div>
+      <a href="https://github.com/imcrom" target="_blank" rel="noopener">github.com/imcrom</a>
+    </div>
+    <div>// TryHackMe :: TryHeartMe</div>
+  </footer>
+
+</div>
+</body>
+</html>
