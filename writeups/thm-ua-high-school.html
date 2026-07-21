@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.A. High School :: imcrom writeups</title>
+<meta name="description" content="TryHackMe U.A. High School writeup: command injection, steganography, SSH access, and privilege escalation through a vulnerable feedback script.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back-link pixel" href="../index.html" style="font-size:13px;">&lt;- ./writeups</a>
+
+  <article>
+    <div class="article-head">
+      <h1>U.A. High School</h1>
+      <h3>TryHackMe</h3>
+      <div class="article-meta">
+        <span class="platform thm">THM</span>
+        <span class="diff easy">EASY</span>
+        <span class="tag">#web</span>
+        <span class="tag">#command-injection</span>
+        <span class="tag">#steganography</span>
+        <span class="tag">#privilege-escalation</span>
+        <span class="tag">#sudo</span>
+        <span class="card-meta" style="margin-left:6px;">2026-07-21</span>
+      </div>
+    </div>
+
+    <div class="article-body">
+      <figure>
+        <img src="img/thm-ua-high-school/01-room-title.png" alt="TryHackMe U.A. High School room title">
+        <figcaption>U.A. High School is an easy TryHackMe room.</figcaption>
+      </figure>
+
+      <p>This is a writeup for <strong>U.A. High School</strong> on TryHackMe. The room combines web enumeration, command injection, steganography, and a vulnerable shell script to create a path from an unauthenticated website to root access.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/02-room-description.png" alt="TryHackMe U.A. High School room description">
+        <figcaption>The room asks us to exploit the web application and gain root access.</figcaption>
+      </figure>
+
+      <h2>./01 Reconnaissance</h2>
+      <p>After launching the instance, I ran an Nmap scan and found two open ports: SSH on port 22 and an Apache web server on port 80.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/03-nmap.png" alt="Nmap scan showing SSH on port 22 and Apache on port 80">
+        <figcaption>The target exposes SSH and an Apache web server.</figcaption>
+      </figure>
+
+      <p>Visiting the web server displayed the U.A. High School website. The page source and <span class="inline-code">robots.txt</span> did not reveal anything useful, so I began enumerating directories with ffuf.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/04-website.png" alt="U.A. High School website home page">
+        <figcaption>The target hosts a simple school website.</figcaption>
+      </figure>
+
+      <pre><code>ffuf -w wordlists/raft-medium-directories.txt \
+  -u http://TARGET_IP/FUZZ</code></pre>
+
+      <figure>
+        <img src="img/thm-ua-high-school/05-ffuf-assets.png" alt="ffuf discovering the assets directory">
+        <figcaption>Directory enumeration reveals <span class="inline-code">/assets</span>.</figcaption>
+      </figure>
+
+      <p>Opening <span class="inline-code">/assets</span> produced a blank page. This suggested that an index file might be handling the request, so I fuzzed one level deeper.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/06-assets-blank.png" alt="Blank page returned by the assets directory">
+        <figcaption>The assets directory loads without listing its contents.</figcaption>
+      </figure>
+
+      <pre><code>ffuf -w wordlists/raft-medium-directories.txt \
+  -u http://TARGET_IP/assets/FUZZ</code></pre>
+
+      <figure>
+        <img src="img/thm-ua-high-school/07-ffuf-images.png" alt="ffuf discovering the images directory under assets">
+        <figcaption>A second scan discovers <span class="inline-code">/assets/images</span>.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/thm-ua-high-school/08-images-forbidden.png" alt="Apache 403 Forbidden response for the images directory">
+        <figcaption>Direct access to the images directory returns HTTP 403.</figcaption>
+      </figure>
+
+      <h2>./02 Command Injection</h2>
+      <p>After further probing, I fuzzed parameter names on <span class="inline-code">/assets/index.php</span>, looking for functionality such as local file inclusion or command execution.</p>
+
+      <pre><code>ffuf -w wordlists/burp-parameter-names.txt \
+  -u 'http://TARGET_IP/assets/index.php?FUZZ=whoami' \
+  -fs 0</code></pre>
+
+      <figure>
+        <img src="img/thm-ua-high-school/09-ffuf-parameters.png" alt="ffuf finding the cmd parameter on index.php">
+        <figcaption>The <span class="inline-code">cmd</span> parameter returns a response with a different size.</figcaption>
+      </figure>
+
+      <p>Requesting <span class="inline-code">/assets/index.php?cmd=whoami</span> returned a Base64-encoded value. Decoding it produced <span class="inline-code">www-data</span>, confirming command injection.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/10-command-output.png" alt="Browser showing Base64 output from the whoami command">
+        <figcaption>The endpoint returns the command output as Base64.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/thm-ua-high-school/11-base64-decode.png" alt="Terminal decoding the command output to www-data">
+        <figcaption>Decoding the response confirms execution as <span class="inline-code">www-data</span>.</figcaption>
+      </figure>
+
+      <p>I then used the injection to start a reverse shell and caught the connection with Netcat.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/12-reverse-shell.png" alt="Netcat listener receiving a reverse shell as www-data">
+        <figcaption>The reverse shell provides access as <span class="inline-code">www-data</span>.</figcaption>
+      </figure>
+
+      <h2>./03 Recovering Deku's Credentials</h2>
+      <p>Enumeration revealed two local users, <span class="inline-code">deku</span> and <span class="inline-code">ubuntu</span>. I also found <span class="inline-code">/var/www/Hidden_Content/passphrase.txt</span>, which contained Base64-encoded data.</p>
+
+      <pre><code>cat /var/www/Hidden_Content/passphrase.txt | base64 -d
+AllmightForEver!!!</code></pre>
+
+      <figure>
+        <img src="img/thm-ua-high-school/13-hidden-content.png" alt="Terminal finding and decoding passphrase.txt">
+        <figcaption>The hidden file decodes to the passphrase <span class="inline-code">AllmightForEver!!!</span>.</figcaption>
+      </figure>
+
+      <p>The passphrase did not work as a system or SSH password. I later found a broken image named <span class="inline-code">oneforall.jpg</span> in <span class="inline-code">/var/www/html/assets/images</span>. Steghide rejected it because the file's header identified it as a PNG rather than a JPEG.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/14-steghide-error.png" alt="Steghide rejecting oneforall.jpg as an unsupported file format">
+        <figcaption>Steghide cannot process the image while its file signature is invalid.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/thm-ua-high-school/15-invalid-header.png" alt="Hex dump showing a PNG signature in oneforall.jpg">
+        <figcaption>The file begins with a PNG signature despite having a <span class="inline-code">.jpg</span> extension.</figcaption>
+      </figure>
+
+      <p>A JPEG should begin with the bytes <span class="inline-code">FF D8 FF E0</span>. I replaced the incorrect signature with the proper JPEG header.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/16-jpeg-signature.png" alt="Reference showing the JPEG file signature">
+        <figcaption>The expected JPEG signature starts with <span class="inline-code">FF D8 FF E0</span>.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/thm-ua-high-school/17-fixed-header.png" alt="Hex editor showing the corrected JPEG header">
+        <figcaption>Correcting the header makes the file a valid JPEG.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/thm-ua-high-school/18-recovered-image.png" alt="Recovered One For All image">
+        <figcaption>The repaired image now renders correctly.</figcaption>
+      </figure>
+
+      <p>With the image repaired, Steghide accepted the earlier passphrase and extracted <span class="inline-code">creds.txt</span>. The recovered credentials allowed me to sign in over SSH as Deku.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/19-extracted-creds.png" alt="Steghide extracting creds.txt from oneforall.jpg">
+        <figcaption>Steghide extracts Deku's credentials from the repaired image.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/thm-ua-high-school/20-ssh-deku.png" alt="Successful SSH login as deku">
+        <figcaption>The extracted password provides SSH access as <span class="inline-code">deku</span>.</figcaption>
+      </figure>
+
+      <p>I could now read <span class="inline-code">user.txt</span>.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/21-user-flag.png" alt="Terminal displaying the U.A. High School user flag">
+        <figcaption>The user flag is stored in Deku's home directory.</figcaption>
+      </figure>
+
+      <div class="flag-box">
+        <span class="flag-label">USER FLAG</span>
+        THM{W3lC0m3_D3kU_1A_0n3f0rAll??}
+      </div>
+
+      <h2>./04 Privilege Escalation</h2>
+      <p>Running <span class="inline-code">sudo -l</span> showed that Deku could execute <span class="inline-code">/opt/NewComponent/feedback.sh</span> as root without a password.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/22-sudo-permissions.png" alt="sudo output allowing feedback.sh to run as root without a password">
+        <figcaption>Deku can run the feedback script as root.</figcaption>
+      </figure>
+
+      <p>The script was readable and executable but not writable. It filtered several shell metacharacters before passing user-controlled input to <span class="inline-code">eval "echo $feedback"</span>. The redirection operator was not filtered, so input such as <span class="inline-code">test &gt;&gt; test.txt</span> created or modified a file as root.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/23-feedback-script.png" alt="Source code of feedback.sh showing filters and eval">
+        <figcaption>The script evaluates user input as root after applying an incomplete filter.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/thm-ua-high-school/24-root-owned-file.png" alt="Root-owned test file created through feedback.sh">
+        <figcaption>Output redirection through the script creates a root-owned file.</figcaption>
+      </figure>
+
+      <p>I used the same primitive to append a passwordless sudo rule for Deku:</p>
+
+      <pre><code>deku ALL=NOPASSWD: ALL &gt;&gt; /etc/sudoers</code></pre>
+
+      <figure>
+        <img src="img/thm-ua-high-school/25-sudoers-injection.png" alt="feedback.sh appending a passwordless sudo rule for deku">
+        <figcaption>The vulnerable script appends the supplied rule to <span class="inline-code">/etc/sudoers</span>.</figcaption>
+      </figure>
+
+      <p>The new rule allowed unrestricted sudo access. I started a root shell and read the final flag.</p>
+
+      <figure>
+        <img src="img/thm-ua-high-school/26-root-flag.png" alt="Root shell displaying the U.A. High School root flag">
+        <figcaption>The injected sudo rule provides full root access.</figcaption>
+      </figure>
+
+      <div class="flag-box">
+        <span class="flag-label">ROOT FLAG</span>
+        THM{Y0U_4r3_7h3_NUm83r_1_H3r0}
+      </div>
+
+      <p>The complete path was directory and parameter enumeration, command injection for an initial shell, credential recovery from a repaired steganographic image, and privilege escalation through unsafe use of <span class="inline-code">eval</span> in a root-run feedback script.</p>
+    </div>
+  </article>
+
+  <footer>
+    <div>
+      <a href="https://github.com/imcrom" target="_blank" rel="noopener">github.com/imcrom</a>
+    </div>
+    <div>// TryHackMe :: U.A. High School</div>
+  </footer>
+
+</div>
+</body>
+</html>
