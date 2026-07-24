@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cap :: imcrom writeups</title>
+<meta name="description" content="Hack The Box Cap writeup: recovering FTP credentials from an exposed packet capture and abusing Python's cap_setuid capability for root access.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back-link pixel" href="../index.html" style="font-size:13px;">&lt;- ./writeups</a>
+
+  <article>
+    <div class="article-head">
+      <h1>Cap</h1>
+      <h3>Hack The Box</h3>
+      <div class="article-meta">
+        <span class="platform htb">HTB</span>
+        <span class="diff easy">EASY</span>
+        <span class="tag">#web</span>
+        <span class="tag">#pcap</span>
+        <span class="tag">#ftp</span>
+        <span class="tag">#capabilities</span>
+        <span class="tag">#privilege-escalation</span>
+        <span class="card-meta" style="margin-left:6px;">2026-07-24</span>
+      </div>
+    </div>
+
+    <div class="article-body">
+      <p>This is a write-up for <strong>Cap</strong> on Hack The Box. After starting the instance, I began with an Nmap scan.</p>
+
+      <figure>
+        <img src="img/htb-cap/image5.png" alt="Hack The Box Cap machine page">
+        <figcaption>The Cap machine provides an HTTP server with packet-capture functionality.</figcaption>
+      </figure>
+
+      <h2>./01 Reconnaissance</h2>
+      <pre><code>nmap -sC -sV TARGET_IP</code></pre>
+
+      <figure>
+        <img src="img/htb-cap/image10.png" alt="Nmap scan output for the Cap target">
+        <figcaption>The scan identifies three open ports: HTTP on 80, SSH on 22, and FTP on 21.</figcaption>
+      </figure>
+
+      <p>The scan showed three open services:</p>
+
+      <pre><code>80/tcp  HTTP
+22/tcp  SSH
+21/tcp  FTP</code></pre>
+
+      <p>Visiting the website greeted me with a dashboard.</p>
+
+      <figure>
+        <img src="img/htb-cap/image6.png" alt="Cap web application dashboard">
+        <figcaption>The application dashboard includes a packet-capture feature.</figcaption>
+      </figure>
+
+      <h2>./02 Packet Capture Enumeration</h2>
+      <p>In the PCAP section, I found a packet-capture file.</p>
+
+      <figure>
+        <img src="img/htb-cap/image13.png" alt="Cap web application PCAP analysis page">
+        <figcaption>The application exposes a security snapshot and its analysis.</figcaption>
+      </figure>
+
+      <p>I downloaded and analysed it, but it did not contain anything useful.</p>
+
+      <figure>
+        <img src="img/htb-cap/image12.png" alt="Initial packet capture analysis with no useful credentials">
+        <figcaption>The first downloaded capture did not reveal anything useful.</figcaption>
+      </figure>
+
+      <p>I probed the site again and noticed that every click on <span class="inline-code">Security Snapshot (5 Second PCAP + Analysis)</span> called <span class="inline-code">/capture</span>. The resulting URL was <span class="inline-code">http://TARGET_IP/data/2</span>, and the number changed between captures. Based on that, I decided to fuzz the URL.</p>
+
+      <pre><code>ffuf -w /path/to/SecLists/Discovery/Web-Content/burp-parameter-names.txt \
+  -u http://TARGET_IP/data/FUZZ -fc 200</code></pre>
+
+      <figure>
+        <img src="img/htb-cap/image9.png" alt="FFUF output discovering accessible data endpoints">
+        <figcaption>Fuzzing the numeric data endpoint reveals older captures, including <span class="inline-code">/data/0</span>.</figcaption>
+      </figure>
+
+      <p>After analysing the PCAP downloaded from <span class="inline-code">http://TARGET_IP/data/0</span>, I found something suspicious.</p>
+
+      <figure>
+        <img src="img/htb-cap/image3.png" alt="Wireshark showing an FTP login with credentials">
+        <figcaption>The older capture contains an FTP login in cleartext.</figcaption>
+      </figure>
+
+      <p>I could see an FTP login. Using those credentials, I logged in to FTP and, just like that, had the user flag.</p>
+
+      <figure>
+        <img src="img/htb-cap/image2.png" alt="FTP session showing the user flag">
+        <figcaption>The recovered credentials provide FTP access to Nathan's files.</figcaption>
+      </figure>
+
+      <div class="flag-box">
+        <span class="flag-label">USER FLAG</span>
+        b2eedfc27026907240cd624a855fcd1e
+      </div>
+
+      <h2>./03 Privilege Escalation</h2>
+      <p>I tried the same credentials over SSH for the user <span class="inline-code">nathan</span>.</p>
+
+      <pre><code>ssh nathan@TARGET_IP</code></pre>
+
+      <figure>
+        <img src="img/htb-cap/image11.png" alt="SSH session as nathan on the Cap target">
+        <figcaption>The FTP credentials also work for SSH, giving me a shell as Nathan.</figcaption>
+      </figure>
+
+      <p>Time to escalate privileges. First, I checked for SUID and SGID-capable programs.</p>
+
+      <pre><code>find / -perm -4000 -type f 2&gt;/dev/null
+find / -perm -2000 -type f 2&gt;/dev/null</code></pre>
+
+      <figure>
+        <img src="img/htb-cap/image7.png" alt="SUID program enumeration output">
+        <figcaption>The SUID enumeration did not show anything out of the ordinary.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="img/htb-cap/image4.png" alt="SGID program enumeration output">
+        <figcaption>The SGID enumeration was similarly unremarkable.</figcaption>
+      </figure>
+
+      <p>With neither result standing out, I looked for programs with Linux capabilities.</p>
+
+      <pre><code>getcap -r / 2&gt;/dev/null</code></pre>
+
+      <figure>
+        <img src="img/htb-cap/image1.png" alt="Capability enumeration showing Python 3.8 with cap_setuid">
+        <figcaption>Python 3.8 has <span class="inline-code">cap_setuid</span>, allowing it to change a process UID.</figcaption>
+      </figure>
+
+      <p>I saw that <span class="inline-code">python3.8</span> could set a UID for a process. At that point, the path to root was straightforward.</p>
+
+      <pre><code>python3 -c 'import os; os.setuid(0); os.system("/bin/bash")'</code></pre>
+
+      <figure>
+        <img src="img/htb-cap/image8.png" alt="Python command setting UID to zero and opening a root shell">
+        <figcaption>Setting the process UID to 0 and launching Bash gives a root shell.</figcaption>
+      </figure>
+
+      <div class="flag-box">
+        <span class="flag-label">ROOT FLAG</span>
+        1dd85456de83d2a83af87f56d8e4901e
+      </div>
+
+      <p>The attack chain was: enumerate the web application, access an older packet capture through its predictable ID, recover FTP credentials, reuse them for SSH, then abuse Python's <span class="inline-code">cap_setuid</span> capability to become root.</p>
+    </div>
+  </article>
+
+  <footer>
+    <div><a href="https://github.com/imcrom" target="_blank" rel="noopener">github.com/imcrom</a></div>
+    <div>// Hack The Box :: Cap</div>
+  </footer>
+
+</div>
+</body>
+</html>
