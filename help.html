@@ -1811,6 +1811,19 @@ grep -ri "password" /etc/*.conf 2&gt;/dev/null
 cat ~/.bash_history
 find / -name "*.kdbx" -o -name "id_rsa*" 2&gt;/dev/null
 
+# Credentials passed as CLI args/env vars — these get captured in shell
+# history, auth.log (via the "sudo ... COMMAND=" line, if run with sudo),
+# and process listings (ps aux) for as long as the process is alive
+grep -riE "PASSWORD=|_PASS=|SECRET=|_TOKEN=|-e .*PASS" /var/log/auth.log* 2&gt;/dev/null
+zgrep -riE "PASSWORD=|_PASS=|SECRET=" /var/log/auth.log*.gz 2&gt;/dev/null
+ps auxww | grep -iE "pass|secret|token"
+history | grep -iE "docker run|mysql -p|psql"
+# any credential found this way is worth testing directly against su/ssh for
+# every local user — CTF boxes very commonly reuse the same password across
+# a database/service and the account that configured it
+su otheruser        # try the recovered credential here first
+ssh otheruser@target # or here, if su isn't available/works differently
+
 # NFS exports
 cat /etc/exports 2&gt;/dev/null
 
