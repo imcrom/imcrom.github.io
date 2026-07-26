@@ -36,10 +36,14 @@
     <div class="article-body">
       <p>This is a write-up for <strong>Silver Platter</strong> on TryHackMe. I started the instance and began with a port scan.</p>
 
+      <p>The room page introduced the target machine for this investigation.</p>
+
       <figure>
         <img src="img/thm-silver-platter/image11.png" alt="TryHackMe Silver Platter room page">
         <figcaption>The Silver Platter room provides the target machine for this investigation.</figcaption>
       </figure>
+
+      <p>The target presented a Silver Platter welcome page.</p>
 
       <figure>
         <img src="img/thm-silver-platter/image13.png" alt="Silver Platter target welcome page">
@@ -68,12 +72,16 @@
         <figcaption>The contact page points to the project manager on Silverpeas.</figcaption>
       </figure>
 
+      <p>The message pointed to Silverpeas and revealed the username <span class="inline-code">scr1ptkiddy</span>.</p>
+
       <figure>
         <img src="img/thm-silver-platter/image2.png" alt="Contact message identifying Silverpeas and the scr1ptkiddy username">
         <figcaption>The message reveals the Silverpeas application and the username <span class="inline-code">scr1ptkiddy</span>.</figcaption>
       </figure>
 
       <p>I searched for Silverpeas and then fuzzed both web services.</p>
+
+      <p>I started by fuzzing port 80, but it did not expose the Silverpeas installation.</p>
 
       <figure>
         <img src="img/thm-silver-platter/image6.png" alt="Search results for Silverpeas">
@@ -85,48 +93,50 @@
         <figcaption>Content discovery on port 80 did not expose the Silverpeas installation.</figcaption>
       </figure>
 
-      <figure>
-        <img src="img/thm-silver-platter/image14.png" alt="Silverpeas login page discovered on port 8080">
-        <figcaption>Port 8080 hosts the Silverpeas login page at <span class="inline-code">/silverpeas</span>.</figcaption>
-      </figure>
-
       <p>I also looked for a Silverpeas installation on both services and found it at <span class="inline-code">http://TARGET_IP:8080/silverpeas</span>.</p>
 
       <figure>
-        <img src="img/thm-silver-platter/image7.png" alt="CVE-2024-36042 proof of concept">
-        <figcaption>The public proof of concept explains the Silverpeas authentication bypass.</figcaption>
+        <img src="img/thm-silver-platter/image14.png" alt="Silverpeas login page discovered on port 8080">
+        <figcaption>Port 8080 hosts the Silverpeas login page at <span class="inline-code">/silverpeas</span>.</figcaption>
       </figure>
 
       <h2>./02 Silverpeas Access</h2>
       <p>I immediately looked for publicly available vulnerabilities and found CVE-2024-36042.</p>
 
       <figure>
+        <img src="img/thm-silver-platter/image7.png" alt="CVE-2024-36042 proof of concept">
+        <figcaption>The public proof of concept explains the Silverpeas authentication bypass.</figcaption>
+      </figure>
+
+      <p>The bypass works by removing the <span class="inline-code">Password</span> field from the login request. I tried it with the username found on the port 80 website.</p>
+
+      <figure>
         <img src="img/thm-silver-platter/image9.png" alt="Modified Silverpeas login request without a password field">
         <figcaption>Removing the password parameter allows the request to bypass authentication.</figcaption>
       </figure>
 
-      <p>The bypass works by removing the <span class="inline-code">Password</span> field from the login request. I tried it with the username found on the port 80 website.</p>
+      <p>The exploit worked, and I was inside Silverpeas as <span class="inline-code">scr1ptkiddy</span>.</p>
+
+      <p>While probing the site, I found a message from a <span class="inline-code">manager</span> user.</p>
 
       <figure>
         <img src="img/thm-silver-platter/image16.png" alt="Silverpeas notification from the manager user">
         <figcaption>A message from the manager confirms that this is another valid account to investigate.</figcaption>
       </figure>
 
-      <p>The exploit worked, and I was inside Silverpeas as <span class="inline-code">scr1ptkiddy</span>.</p>
+      <p>I could also confirm the manager account through the Silverpeas directory.</p>
 
       <figure>
         <img src="img/thm-silver-platter/image8.png" alt="Silverpeas directory listing the manager user">
         <figcaption>The directory confirms the existence of the manager account.</figcaption>
       </figure>
 
-      <p>While probing the site, I found a message. It mentioned a <span class="inline-code">manager</span> user, which I could also confirm through the Silverpeas directory.</p>
+      <p>I tried the authentication-bypass exploit again as <span class="inline-code">manager</span>. It worked, and further probing of that account revealed a notification containing credentials for <span class="inline-code">tim</span>.</p>
 
       <figure>
         <img src="img/thm-silver-platter/image12.png" alt="Manager notification containing Tim's credentials">
         <figcaption>The manager account contains credentials that can be reused for SSH.</figcaption>
       </figure>
-
-      <p>I tried the authentication-bypass exploit again as <span class="inline-code">manager</span>. It worked, and further probing of that account revealed a notification containing credentials for <span class="inline-code">tim</span>.</p>
 
       <h2>./03 Initial Shell</h2>
       <p>I tried the credentials over SSH and gained a shell as <span class="inline-code">tim</span>.</p>
@@ -161,6 +171,8 @@ sudo -i</code></pre>
         <img src="img/thm-silver-platter/image3.png" alt="Sudo permissions granting root access">
         <figcaption>Tyler can run commands as root without a password, completing the escalation.</figcaption>
       </figure>
+
+      <p>I used that sudo access to open a root shell and read the final flag.</p>
 
       <figure>
         <img src="img/thm-silver-platter/image1.png" alt="Root shell and root flag">
