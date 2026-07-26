@@ -34,6 +34,8 @@
     <div class="article-body">
       <p>This is a write-up for <strong>Cap</strong> on Hack The Box. After starting the instance, I began with an Nmap scan.</p>
 
+      <p>The machine page indicated that the target included an HTTP service with packet-capture functionality.</p>
+
       <figure>
         <img src="img/htb-cap/image5.png" alt="Hack The Box Cap machine page">
         <figcaption>The Cap machine provides an HTTP server with packet-capture functionality.</figcaption>
@@ -42,16 +44,16 @@
       <h2>./01 Reconnaissance</h2>
       <pre><code>nmap -sC -sV TARGET_IP</code></pre>
 
-      <figure>
-        <img src="img/htb-cap/image10.png" alt="Nmap scan output for the Cap target">
-        <figcaption>The scan identifies three open ports: HTTP on 80, SSH on 22, and FTP on 21.</figcaption>
-      </figure>
-
       <p>The scan showed three open services:</p>
 
       <pre><code>80/tcp  HTTP
 22/tcp  SSH
 21/tcp  FTP</code></pre>
+
+      <figure>
+        <img src="img/htb-cap/image10.png" alt="Nmap scan output for the Cap target">
+        <figcaption>The scan identifies three open ports: HTTP on 80, SSH on 22, and FTP on 21.</figcaption>
+      </figure>
 
       <p>Visiting the website greeted me with a dashboard.</p>
 
@@ -85,7 +87,7 @@
         <figcaption>Fuzzing the numeric data endpoint reveals older captures, including <span class="inline-code">/data/0</span>.</figcaption>
       </figure>
 
-      <p>After analysing the PCAP downloaded from <span class="inline-code">http://TARGET_IP/data/0</span>, I found something suspicious.</p>
+      <p>After analysing the PCAP downloaded from <span class="inline-code">http://TARGET_IP/data/0</span>, I found an FTP login in cleartext.</p>
 
       <figure>
         <img src="img/htb-cap/image3.png" alt="Wireshark showing an FTP login with credentials">
@@ -129,7 +131,7 @@ find / -perm -2000 -type f 2&gt;/dev/null</code></pre>
         <figcaption>The SGID enumeration was similarly unremarkable.</figcaption>
       </figure>
 
-      <p>With neither result standing out, I looked for programs with Linux capabilities.</p>
+      <p>With neither result standing out, I looked for programs with Linux capabilities. In particular, I was looking for <span class="inline-code">cap_setuid</span>, because it allows a process to change its UID and could provide a direct route to root.</p>
 
       <pre><code>getcap -r / 2&gt;/dev/null</code></pre>
 
@@ -137,8 +139,6 @@ find / -perm -2000 -type f 2&gt;/dev/null</code></pre>
         <img src="img/htb-cap/image1.png" alt="Capability enumeration showing Python 3.8 with cap_setuid">
         <figcaption>Python 3.8 has <span class="inline-code">cap_setuid</span>, allowing it to change a process UID.</figcaption>
       </figure>
-
-      <p>I saw that <span class="inline-code">python3.8</span> could set a UID for a process. At that point, the path to root was straightforward.</p>
 
       <pre><code>python3 -c 'import os; os.setuid(0); os.system("/bin/bash")'</code></pre>
 
