@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dreaming :: imcrom writeups</title>
+<meta name="description" content="TryHackMe Dreaming writeup: Pluck CMS exploitation, chained credential recovery, command injection, Python library hijacking, and root sudo access.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back-link pixel" href="../index.html" style="font-size:13px;">&lt;- ./writeups</a>
+
+  <article>
+    <div class="article-head">
+      <h1>Dreaming</h1>
+      <h3>TryHackMe</h3>
+      <div class="article-meta">
+        <span class="platform thm">THM</span>
+        <span class="diff easy">EASY</span>
+        <span class="tag">#web</span>
+        <span class="tag">#pluck-cms</span>
+        <span class="tag">#webshell</span>
+        <span class="tag">#command-injection</span>
+        <span class="tag">#python-hijacking</span>
+        <span class="tag">#privilege-escalation</span>
+        <span class="tag">#sudo</span>
+        <span class="card-meta" style="margin-left:6px;">2026-08-02</span>
+      </div>
+    </div>
+
+    <div class="article-body">
+      <figure><img src="img/thm-dreaming/image27.png" alt="TryHackMe Dreaming room page"></figure>
+      <figure><img src="img/thm-dreaming/image1.png" alt="Dreaming target prompt"></figure>
+
+      <h2>./01 Reconnaissance</h2>
+      <p>I started with a RustScan scan.</p>
+      <figure><img src="img/thm-dreaming/image18.png" alt="RustScan output for the Dreaming target"></figure>
+
+      <p>The scan showed that ports 22 and 80 were open.</p>
+      <figure><img src="img/thm-dreaming/image9.png" alt="Nmap results showing SSH and HTTP"></figure>
+
+      <p>I tried to find directories and files with FFUF.</p>
+      <figure><img src="img/thm-dreaming/image13.png" alt="FFUF output for the Dreaming website"></figure>
+      <figure><img src="img/thm-dreaming/image15.png" alt="Directory listing for the app path"></figure>
+
+      <p>I found <span class="inline-code">/app</span>. Visiting it showed Pluck 4.7.13 and redirected me to <span class="inline-code">http://dreaming.thm/app/pluck-4.7.13/?file=dreaming</span>.</p>
+      <figure><img src="img/thm-dreaming/image19.png" alt="Pluck CMS page"></figure>
+
+      <p>Fuzzing deeper revealed some interesting PHP files.</p>
+      <figure><img src="img/thm-dreaming/image31.png" alt="FFUF results revealing PHP files"></figure>
+
+      <p>I found <span class="inline-code">admin.php</span> and <span class="inline-code">login.php</span>. Visiting <span class="inline-code">http://dreaming.thm/app/pluck-4.7.13/admin.php</span> displayed the page below and redirected me to <span class="inline-code">login.php</span>.</p>
+      <figure><img src="img/thm-dreaming/image29.png" alt="Pluck administrator page"></figure>
+      <figure><img src="img/thm-dreaming/image12.png" alt="Pluck login page"></figure>
+
+      <h2>./02 Initial Access</h2>
+      <p>I looked for exploits for this specific version of Pluck and found one.</p>
+      <figure><img src="img/thm-dreaming/image22.png" alt="Searchsploit results for Pluck CMS"></figure>
+
+      <p>I still needed to authenticate to use the exploit. My initial thought was to fuzz deeper while checking the documentation, but I could not find anything useful. I then tried brute-forcing the POST request.</p>
+      <figure><img src="img/thm-dreaming/image5.png" alt="Attempt to brute force the Pluck login"></figure>
+
+      <p>I was rate-limited. At that point, I tried default passwords and luckily found that <span class="inline-code">password</span> worked.</p>
+      <figure><img src="img/thm-dreaming/image11.png" alt="Successful Pluck login using the default password"></figure>
+
+      <p>I could now try the exploit I found.</p>
+      <figure><img src="img/thm-dreaming/image25.png" alt="Pluck exploit being prepared"></figure>
+      <figure><img src="img/thm-dreaming/image8.png" alt="Webshell accessible through the Pluck exploit"></figure>
+
+      <p>The exploit worked and the webshell was accessible. While digging through the machine, I found two files in <span class="inline-code">/opt</span>: <span class="inline-code">getDreams.py</span> and <span class="inline-code">test.py</span>. The latter revealed a password for the user <span class="inline-code">lucien</span>.</p>
+      <figure><img src="img/thm-dreaming/image7.png" alt="test.py revealing Lucien's password"></figure>
+
+      <p>I used the password to connect to the server over SSH.</p>
+      <figure><img src="img/thm-dreaming/image26.png" alt="SSH shell as Lucien"></figure>
+
+      <h2>./03 Lucien to Death</h2>
+      <p>I was now Lucien, so I began investigating what I could use to gain higher privileges. I found that Lucien could run <span class="inline-code">getDreams.py</span> as the user <span class="inline-code">death</span> without a password.</p>
+      <figure><img src="img/thm-dreaming/image4.png" alt="Lucien sudo permissions for getDreams.py"></figure>
+
+      <p>Reading <span class="inline-code">/opt/getDreams.py</span> showed Death's password, but it was redacted. I believed the real <span class="inline-code">getDreams.py</span>, located at <span class="inline-code">/home/death/getDreams.py</span>, would contain the password.</p>
+      <figure><img src="img/thm-dreaming/image17.png" alt="Source code of getDreams.py"></figure>
+
+      <p>I found an interesting detail in the source code: it read an entry from the <span class="inline-code">library</span> database with <span class="inline-code">subprocess</span> using <span class="inline-code">command = f&quot;echo {dreamer} + {dream}&quot;</span>. I could escape the <span class="inline-code">echo</span> command and run my own command, but first I needed access to the MySQL database.</p>
+
+      <p>Reading Lucien's Bash history revealed something useful.</p>
+      <figure><img src="img/thm-dreaming/image23.png" alt="Lucien Bash history containing MySQL credentials"></figure>
+
+      <p>I found MySQL credentials. Now I only needed to add a malicious entry to the database.</p>
+      <figure><img src="img/thm-dreaming/image14.png" alt="MySQL database access"></figure>
+
+      <p>It was time to insert the malicious entry.</p>
+      <figure><img src="img/thm-dreaming/image30.png" alt="Malicious database entry being inserted"></figure>
+
+      <p>With the malicious entry in place, the Python script would effectively run:</p>
+      <pre><code>echo "hello"; cat /home/death/getDreams.py; echo "pwn" + "ed"
+
+sudo -u death /usr/bin/python3 /home/death/getDreams.py</code></pre>
+      <p>This would print the source code of <span class="inline-code">getDreams.py</span>, including Death's password. Running the script as Death worked as planned.</p>
+      <figure><img src="img/thm-dreaming/image32.png" alt="Command injection through getDreams.py"></figure>
+
+      <p>I could now see the source code containing Death's password.</p>
+      <figure><img src="img/thm-dreaming/image21.png" alt="Death password exposed in getDreams.py"></figure>
+
+      <p>I used it and escalated my privileges to <span class="inline-code">death</span>. It was time to dig again and find a path to <span class="inline-code">morpheus</span>. After investigating, I found that I could read the contents of <span class="inline-code">/home/morpheus</span>.</p>
+      <figure><img src="img/thm-dreaming/image16.png" alt="Contents of Morpheus home directory"></figure>
+
+      <p>It contained a readable Python script called <span class="inline-code">restore.py</span>.</p>
+      <figure><img src="img/thm-dreaming/image24.png" alt="Contents of restore.py"></figure>
+      <figure><img src="img/thm-dreaming/image6.png" alt="pspy output showing a cron job"></figure>
+
+      <h2>./04 Death to Morpheus</h2>
+      <p>The script imports <span class="inline-code">copy2</span> from the <span class="inline-code">shutil</span> library and uses it to back up <span class="inline-code">kingdom</span> to <span class="inline-code">/kingdom_backup/kingdom</span>. Using pspy64, I found that cron ran <span class="inline-code">restore.py</span>.</p>
+
+      <p>Further investigation showed that Death had write permission to the Python 3.8 libraries. I could edit the <span class="inline-code">copy2</span> function in the imported <span class="inline-code">shutil</span> library and run my own code.</p>
+      <figure><img src="img/thm-dreaming/image2.png" alt="Death write permissions to Python libraries"></figure>
+
+      <p>I added a one-line reverse shell from revshells to the start of the <span class="inline-code">copy2</span> function.</p>
+      <figure><img src="img/thm-dreaming/image20.png" alt="Modified shutil copy2 function with reverse shell"></figure>
+
+      <p>Just like that, I was Morpheus. After checking what Morpheus could run with sudo, I found the following.</p>
+      <figure><img src="img/thm-dreaming/image3.png" alt="Shell as Morpheus"></figure>
+
+      <p>Morpheus could run anything as root without a password.</p>
+      <figure><img src="img/thm-dreaming/image28.png" alt="Morpheus unrestricted sudo permissions"></figure>
+
+      <p>That was it.</p>
+      <figure><img src="img/thm-dreaming/image10.png" alt="Root shell on Dreaming"></figure>
+    </div>
+  </article>
+
+  <footer>
+    <div><a href="https://github.com/imcrom" target="_blank" rel="noopener">github.com/imcrom</a></div>
+    <div>// TryHackMe :: Dreaming</div>
+  </footer>
+
+</div>
+</body>
+</html>
